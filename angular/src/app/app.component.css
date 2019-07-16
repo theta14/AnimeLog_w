@@ -1,0 +1,9 @@
+.mat-tabs:hover {
+    text-decoration: none;
+}
+
+footer * {
+    /* color: rgb(0, 175, 219); */
+    /* color: white; */
+    color: rgb(235, 235, 235);
+}

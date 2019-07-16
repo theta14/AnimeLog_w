@@ -1,0 +1,32 @@
+*:focus, *:active, *:visited {
+    outline: 0;
+}
+
+button:focus, button:active, button:visited, mat-icon:focus, mat-icon:active, mat-icon:visited {
+    outline: 0;
+}
+
+main {
+    color: white;
+}
+
+section {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.table-category {
+    vertical-align: middle;
+}
+
+.table-series {
+    vertical-align: middle;
+}
+
+.table-title {
+    vertical-align: middle;
+}

@@ -1,0 +1,75 @@
+<section>
+  <mat-progress-bar *ngIf="!watchings" mode="indeterminate"></mat-progress-bar>
+  <table class="table table-dark" *ngIf="watchings">
+    <thead>
+      <tr>
+        <th>타입</th>
+        <th>제목</th>
+        <th colspan="120">제작사</th>
+        <th>방영분기</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let watching of watchings; index as w">
+
+        <tr>
+          <td *ngIf="watching.type == 'tva'">TVA</td>
+          <td *ngIf="watching.type == 'movie'">극장판</td>
+          <td>{{watching.title}}</td>
+          <td *ngFor="let studio of watching.studios" [attr.colspan]="120 / watching.studios.length">{{studio}}</td>
+          <td>'{{watching.premiered.year.toString().substring(2)}} - {{watching.premiered.quarter}}</td>
+        </tr>
+        <tr *ngIf="watching.opened">
+          <td colspan="123" style="padding: 0px;">
+          
+            <!-- detail -->
+            <table class="table table-dark table-hover">
+              <tr>
+                <td [attr.rowspan]="7 + watching.studios.length" style="text-align: center; vertical-align: middle;">
+                  <img [src]="watching.img">
+                </td>
+                <th>타입</th>
+                <td *ngIf="watching.type == 'tva'">TVA</td>
+                <td *ngIf="watching.type == 'movie'">극장판</td>
+              </tr>
+              <tr>
+                <th>제목</th>
+                <td>{{watching.title}}</td>
+              </tr>
+              <tr>
+                <th>방영 분기</th>
+                <td>{{watching.premiered.year}}년 {{watching.premiered.quarter}}</td>
+              </tr>
+              <tr>
+                <th>방영 시기</th>
+                <td>{{watching.aired}}</td>
+              </tr>
+              <tr *ngFor="let studio of watching.studios; index as i">
+                <th *ngIf="i == 0" [attr.rowspan]="watching.studios.length" style="vertical-align: middle;">제작사</th>
+                <td>{{watching.studio}}</td>
+              </tr>
+              <tr>
+                <th>메모</th>
+                <td>{{watching.memo}}</td>
+              </tr>
+              <tr>
+                <th>MyAnimeList</th>
+                <td>
+                  <a [href]="'https://myanimelist.net/anime/' + watching.mal_id" target="_blank">
+                    {{watching.mal_id}}
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <th>OHLI</th>
+                <td>앞으로 논의 해봅시다.</td>
+              </tr>
+            </table>
+
+          </td>
+        </tr>
+
+      </ng-container>
+    </tbody>
+  </table>
+</section>

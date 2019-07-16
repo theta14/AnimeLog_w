@@ -1,0 +1,458 @@
+<section>
+  <mat-progress-bar *ngIf="!tvas" mode="indeterminate"></mat-progress-bar>
+  <div *ngIf="tvas">
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th>카테고리</th>
+          <th>시리즈</th>
+          <th>제목</th>
+          <th>시즌</th>
+          <th colspan="120">제작사</th>
+          <th>화수</th>
+          <th>방영분기</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let tva of tvas; index as t">
+
+          <ng-container *ngFor="let series of tva.series; index as i">
+            <ng-container *ngFor="let sequence of series.sequences; index as j">
+              <tr [attr.id]="'tva' + t">
+                <td *ngIf="tva.series.length > 1 && i == 0 && j == 0" [attr.rowspan]="tva.series.length" class="table-category">{{tva.category}}</td>
+                <td *ngIf="tva.series.length > 1 && j == 0" class="table-series">{{series.title}}</td>
+                <td *ngIf="tva.series.length == 1 && tva.series[0].sequences.length > 1 && j == 0"
+                  [attr.rowspan]="tva.series[0].sequences.length" colspan="2" class="table-category"
+                  style="vertical-align: middle; text-align: center;">{{tva.category}}</td>
+                <td *ngIf="tva.series.length == 1 && tva.series[0].sequences.length == 1" colspan="2"></td>
+                <td>
+                  <span class="clickable" (click)="clickTva(t, i, j)">{{getRvTitle(sequence.title)}}</span>
+                </td>
+                <td *ngIf="tva.series.length == 1 && tva.series[0].sequences.length == 1; else seasonTemplate"></td>
+                <ng-template #seasonTemplate>
+                  <td>{{sequence.season}}</td>
+                </ng-template>
+                <td *ngFor="let studio of sequence.studios" [attr.colspan]="120 / sequence.studios.length">{{studio}}</td>
+                <td>{{sequence.episodes}}</td>
+                <td>'{{sequence.premiered.year.toString().substring(2)}} - {{sequence.premiered.quarter}}</td>
+              </tr>
+              <tr *ngIf="tva.opened && i == tva.series.length-1 && j == series.sequences.length-1">
+                <td colspan="126" style="padding: 0px;">
+
+                  <!-- detail -->
+                  <table class="table table-dark table-hover">
+                    <tr>
+                      <td style="text-align: center; vertical-align: middle;"
+                        [attr.rowspan]="(tva.category_movie ? 14 : 13) + tva.series[tva.opened.series].sequences[tva.opened.sequence].studios.length">
+                        <img [src]="tva.series[tva.opened.series].sequences[tva.opened.sequence].img">
+                      </td>
+                      <th>카테고리</th>
+                      <td>{{tva.category}}</td>
+                    </tr>
+                    <tr *ngIf="tva.category_movie">
+                      <th>극장판</th>
+                      <td>
+                        <mat-progress-bar *ngIf="!tva.opened.linked" mode="indeterminate"></mat-progress-bar>
+                        <a *ngIf="tva.opened.linked"
+                          [routerLink]="['/movie', tva.opened.linked._id, tva.opened.linked.series, 0]">
+                          {{tva.opened.linked.title}}
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>시리즈</th>
+                      <td>{{tva.series[tva.opened.series].title}}</td>
+                    </tr>
+                    <tr>
+                      <th>시리즈 메모</th>
+                      <td>{{tva.series[tva.opened.series].memo}}</td>
+                    </tr>
+                    <tr><td></td><td></td></tr>
+                    <tr>
+                      <th rowspan="3" style="vertical-align: middle;">제목</th>
+                      <td *ngIf="tva.series[tva.opened.series].sequences[tva.opened.sequence].title.rv == 'kor'">
+                        <b>
+                          {{tva.series[tva.opened.series].sequences[tva.opened.sequence].title.kor}}
+                        </b>
+                      </td>
+                      <td *ngIf="tva.series[tva.opened.series].sequences[tva.opened.sequence].title.rv != 'kor'">
+                        {{tva.series[tva.opened.series].sequences[tva.opened.sequence].title.kor}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td *ngIf="tva.series[tva.opened.series].sequences[tva.opened.sequence].title.rv == 'eng'">
+                        <b>
+                          {{tva.series[tva.opened.series].sequences[tva.opened.sequence].title.eng}}
+                        </b>
+                      </td>
+                      <td *ngIf="tva.series[tva.opened.series].sequences[tva.opened.sequence].title.rv != 'eng'">
+                        {{tva.series[tva.opened.series].sequences[tva.opened.sequence].title.eng}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td *ngIf="tva.series[tva.opened.series].sequences[tva.opened.sequence].title.rv == 'jpn'">
+                        <b>
+                          {{tva.series[tva.opened.series].sequences[tva.opened.sequence].title.jpn}}
+                        </b>
+                      </td>
+                      <td *ngIf="tva.series[tva.opened.series].sequences[tva.opened.sequence].title.rv != 'jpn'">
+                        {{tva.series[tva.opened.series].sequences[tva.opened.sequence].title.jpn}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>방영 분기</th>
+                      <td>
+                        {{tva.series[tva.opened.series].sequences[tva.opened.sequence].premiered.year}}년 {{tva.series[tva.opened.series].sequences[tva.opened.sequence].premiered.quarter}}분기
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>방영 시기</th>
+                      <td>
+                        {{tva.series[tva.opened.series].sequences[tva.opened.sequence].aired.start}} ~ {{tva.series[tva.opened.series].sequences[tva.opened.sequence].aired.end}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>방영 화수</th>
+                      <td>{{tva.series[tva.opened.series].sequences[tva.opened.sequence].episodes}}화</td>
+                    </tr>
+                    <tr *ngFor="let studio of tva.series[tva.opened.series].sequences[tva.opened.sequence].studios; index as s">
+                      <th *ngIf="s == 0" style="vertical-align: middle;"
+                        [attr.rowspan]="tva.series[tva.opened.series].sequences[tva.opened.sequence].studios.length">제작사</th>
+                      <td>{{studio}}</td>
+                    </tr>
+                    <tr>
+                      <th>메모</th>
+                      <td>{{tva.series[tva.opened.series].sequences[tva.opened.sequence].memo}}</td>
+                    </tr>
+                    <tr>
+                      <th>MyAnimeList</th>
+                      <td>
+                        <a [href]="'https://myanimelist.net/anime/' + tva.series[tva.opened.series].sequences[tva.opened.sequence].mal_id" target="_blank">
+                          {{tva.series[tva.opened.series].sequences[tva.opened.sequence].mal_id}}
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="text-align: center;">
+                        <button mat-button (click)="modifyTva(t, tva.opened.series, tva.opened.sequence)">
+                          <mat-icon>create</mat-icon>
+                        </button>
+                        <button mat-button (click)="removeTva(t, tva.opened.series, tva.opened.sequence)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </table>
+
+                </td>
+              </tr>
+              <tr *ngIf="tva.modifying && i == tva.series.length-1 && j == series.sequences.length-1">
+                <td colspan="126">
+                  
+                  <!-- modifying -->
+                  <form (submit)="onModifySubmit(t, modifying.series, modifying.sequence)">
+                    <table class="table table-secondary" style="width: 70%; margin: auto;">
+                      <tr>
+                        <th style="width: 30%;">검색</th>
+                        <td>
+                          <mat-form-field>
+                            <mat-label>검색옵션</mat-label>
+                            <mat-select #searchOption>
+                              <mat-option value="onnada">Onnada</mat-option>
+                              <mat-option value="mal">MyAnimeList</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                          <mat-form-field appearance="outline">
+                            <mat-label>검색어를 입력해주세요.</mat-label>
+                            <input matInput #searchBox (keyup.enter)="searchTva(t, searchOption.value, searchBox.value)">
+                          </mat-form-field>
+                          <button mat-flat-button type="button" (click)="searchTva(t, searchOption.value, searchBox.value)">
+                            <mat-icon>search</mat-icon>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr><td></td><td></td></tr>
+                      <tr>
+                        <th>시리즈</th>
+                        <td>
+                          <mat-form-field>
+                            <input matInput placeholder="시리즈" [formControl]="seriesControl" [matAutocomplete]="auto" name="seriesTitle">
+                            <mat-autocomplete #auto="matAutocomplete">
+                              <mat-option *ngFor="let option of seriesFilteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>제목</th>
+                        <td>
+                          <mat-radio-group [(ngModel)]="tva.modifying.title.rv" name="rv">
+                            <table class="table table-borderless">
+                              <tr>
+                                <th><mat-radio-button value="kor">KOR</mat-radio-button></th>
+                                <td>
+                                  <mat-form-field>
+                                    <input matInput placeholder="한국어 제목" [(ngModel)]="tva.modifying.title.kor" name="kor">
+                                  </mat-form-field>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th><mat-radio-button value="eng">ENG</mat-radio-button></th>
+                                <td>
+                                  <mat-form-field>
+                                    <input matInput placeholder="알파벳 제목" [(ngModel)]="tva.modifying.title.eng" name="eng">
+                                  </mat-form-field>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th><mat-radio-button value="jpn">JPN</mat-radio-button></th>
+                                <td>
+                                  <mat-form-field>
+                                    <input matInput placeholder="일어 제목" [(ngModel)]="tva.modifying.title.jpn" name="jpn">
+                                  </mat-form-field>
+                                </td>
+                              </tr>
+                            </table>
+                          </mat-radio-group>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>시즌</th>
+                        <td>
+                          <mat-form-field>
+                            <input matInput type="number" [(ngModel)]="tva.modifying.season" name="season" min="1">
+                            <span matSuffix>기</span>
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th rowspan="2">방영 분기</th>
+                        <td>
+                          <mat-form-field>
+                            <input matInput placeholder="연도" type="number" [(ngModel)]="tva.modifying.premiered.year" name="year">
+                            <span matSuffix>년</span>
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <mat-form-field>
+                            <input matInput placeholder="분기" type="number" [(ngModel)]="tva.modifying.premiered.quarter" name="quarter" max="4" min="1">
+                            <span matSuffix>분기</span>
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th rowspan="2">방영 시기</th>
+                        <td>
+                          <mat-form-field>
+                            <input matInput placeholder="방영 시작일" [(ngModel)]="tva.modifying.aired.start" name="aired_start">
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <mat-form-field>
+                            <input matInput placeholder="방영 종료일" [(ngModel)]="tva.modifying.aired.end" name="aired_end">
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>방영 화수</th>
+                        <td>
+                          <mat-form-field>
+                            <input matInput type="number" [(ngModel)]="tva.modifying.episodes" name="episodes" min="1">
+                            <span matSuffix>화</span>
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>제작사</th>
+                        <td>
+                          <mat-form-field>
+                            <textarea matInput placeholder="제작사" [(ngModel)]="modifying.studios" name="studios"></textarea>
+                            <mat-hint>여러 개의 경우, 줄을 나눠서 입력해주세요.</mat-hint>
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>메모</th>
+                        <td>
+                          <mat-form-field>
+                            <textarea matInput placeholder="메모" [(ngModel)]="tva.modifying.memo" name="memo"></textarea>
+                          </mat-form-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2" style="text-align: center;">
+                          <button mat-button type="submit">
+                            <mat-icon>check_circle_outline</mat-icon>
+                          </button>
+                          <button mat-button type="button" (click)="cancelModify(t)">
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    </table>
+                  </form>
+
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
+
+        </ng-container>
+      </tbody>
+    </table>
+    <button mat-flat-button (click)="openAll()">전체 열기</button>
+  </div>
+
+</section>
+
+<section>
+  <form (submit)="onModifySubmit(t, modifying.series, modifying.sequence)">
+    <table class="table table-secondary" style="width: 70%; margin: auto;">
+      <tr>
+        <th style="width: 30%;">검색</th>
+        <td>
+          <mat-form-field>
+            <mat-label>검색옵션</mat-label>
+            <mat-select #searchOption>
+              <mat-option value="onnada">Onnada</mat-option>
+              <mat-option value="mal">MyAnimeList</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>검색어를 입력해주세요.</mat-label>
+            <input matInput #searchBox (keyup.enter)="searchTva(t, searchOption.value, searchBox.value)">
+          </mat-form-field>
+          <button mat-flat-button type="button" (click)="searchTva(t, searchOption.value, searchBox.value)">
+            <mat-icon>search</mat-icon>
+          </button>
+        </td>
+      </tr>
+      <tr><td></td><td></td></tr>
+      <tr>
+        <th>시리즈</th>
+        <td>
+          <mat-form-field>
+            <input matInput placeholder="시리즈" [formControl]="seriesControl" [matAutocomplete]="auto" name="seriesTitle">
+            <mat-autocomplete #auto="matAutocomplete">
+              <mat-option *ngFor="let option of seriesFilteredOptions | async" [value]="option">{{option}}</mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <th>제목</th>
+        <td>
+          <mat-radio-group [(ngModel)]="tva.modifying.title.rv" name="rv">
+            <table class="table table-borderless">
+              <tr>
+                <th><mat-radio-button value="kor">KOR</mat-radio-button></th>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="한국어 제목" [(ngModel)]="tva.modifying.title.kor" name="kor">
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <th><mat-radio-button value="eng">ENG</mat-radio-button></th>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="알파벳 제목" [(ngModel)]="tva.modifying.title.eng" name="eng">
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <th><mat-radio-button value="jpn">JPN</mat-radio-button></th>
+                <td>
+                  <mat-form-field>
+                    <input matInput placeholder="일어 제목" [(ngModel)]="tva.modifying.title.jpn" name="jpn">
+                  </mat-form-field>
+                </td>
+              </tr>
+            </table>
+          </mat-radio-group>
+        </td>
+      </tr>
+      <tr>
+        <th>시즌</th>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" [(ngModel)]="tva.modifying.season" name="season" min="1">
+            <span matSuffix>기</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <th rowspan="2">방영 분기</th>
+        <td>
+          <mat-form-field>
+            <input matInput placeholder="연도" type="number" [(ngModel)]="tva.modifying.premiered.year" name="year">
+            <span matSuffix>년</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <mat-form-field>
+            <input matInput placeholder="분기" type="number" [(ngModel)]="tva.modifying.premiered.quarter" name="quarter" max="4" min="1">
+            <span matSuffix>분기</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <th rowspan="2">방영 시기</th>
+        <td>
+          <mat-form-field>
+            <input matInput placeholder="방영 시작일" [(ngModel)]="tva.modifying.aired.start" name="aired_start">
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <mat-form-field>
+            <input matInput placeholder="방영 종료일" [(ngModel)]="tva.modifying.aired.end" name="aired_end">
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <th>방영 화수</th>
+        <td>
+          <mat-form-field>
+            <input matInput type="number" [(ngModel)]="tva.modifying.episodes" name="episodes" min="1">
+            <span matSuffix>화</span>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <th>제작사</th>
+        <td>
+          <mat-form-field>
+            <textarea matInput placeholder="제작사" [(ngModel)]="modifying.studios" name="studios"></textarea>
+            <mat-hint>여러 개의 경우, 줄을 나눠서 입력해주세요.</mat-hint>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <th>메모</th>
+        <td>
+          <mat-form-field>
+            <textarea matInput placeholder="메모" [(ngModel)]="tva.modifying.memo" name="memo"></textarea>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="text-align: center;">
+          <button mat-button type="submit">
+            <mat-icon>check_circle_outline</mat-icon>
+          </button>
+          <button mat-button type="button" (click)="cancelModify(t)">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </td>
+      </tr>
+    </table>
+  </form>
+</section>
