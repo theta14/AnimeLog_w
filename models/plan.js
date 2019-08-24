@@ -2,13 +2,12 @@ const mongoose = require('mongoose');
 
 const PlanSchema = mongoose.Schema({
   type: String,   // 'tva' or 'movie'
-  title: String,  // temporary represented title, it's not gonna be used when becomes a TVA or Movie
+  title: Object,
   memo: String,
-  mal_id: Number
+  mal_id: Number,
+  aired: String,  // the first aired date
+  img: String,
+  studios: Array
 });
 
 module.exports = mongoose.model('Plan', PlanSchema);
-
-module.exports.addPlan = (newPlan, callback) => {
-  newPlan.save(callback);
-}

@@ -34,7 +34,3 @@ const TvaSchema = mongoose.Schema({
 });
 
 module.exports = mongoose.model('Tva', TvaSchema);
-
-module.exports.addTva = (newTva, callback) => {
-  newTva.save(callback);
-}

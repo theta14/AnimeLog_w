@@ -1,14 +1,27 @@
-<section>
+<section class="container">
+  <div class="border border-secondary info-area">
+    <h4>극장판</h4>
+    <p>카테고리 수: {{movies?.length}}</p>
+    <p>극장판 수: {{count()}}</p>
+    <p>
+      <button mat-flat-button (click)="openAll()">전체 열기</button>&nbsp;
+      <button mat-flat-button (click)="closeAll()">전체 닫기</button>&nbsp;
+      <button mat-flat-button (click)="writeMovie(); writingArea.scrollIntoView()">새 항목 작성</button>
+    </p>
+  </div>
+</section>
+
+<section class="container">
   <mat-progress-bar *ngIf="!movies" mode="indeterminate"></mat-progress-bar>
   <table class="table table-dark" *ngIf="movies">
     <thead>
       <tr>
-        <th>카테고리</th>
-        <th>시리즈</th>
-        <th>제목</th>
+        <th (click)="align(0, 0)">카테고리</th>
+        <th (click)="align(0, 1)">시리즈</th>
+        <th (click)="align(0, 2)">제목</th>
         <th>순서</th>
-        <th colspan="120">제작사</th>
-        <th>개봉일</th>
+        <th (click)="align(0, 3)" colspan="120">제작사</th>
+        <th (click)="align(0, 4)">개봉일</th>
       </tr>
     </thead>
     <tbody>
@@ -16,15 +29,17 @@
 
         <ng-container *ngFor="let series of movie.series; index as i">
           <ng-container *ngFor="let sequence of series.sequences; index as j">
-            <tr [attr.id]="'movie' + m">
-              <td *ngIf="movie.series.length > 1 && i == 0 && j == 0" [attr.rowspan]="movie.series.length" class="table-category">{{movie.category}}</td>
-              <td *ngIf="movie.series.length > 1 && j == 0" class="table-series">{{series.title}}</td>
+            <tr [attr.id]="movie._id">
+              <td *ngIf="movie.series.length > 1 && i == 0 && j == 0" [attr.rowspan]="allElementsLength(m)"
+                class="table-category" style="vertical-align: middle;">{{movie.category}}</td>
+              <td *ngIf="movie.series.length > 1 && j == 0" class="table-series"
+                [attr.rowspan]="movie.series[i].sequences.length" style="vertical-align: middle;">{{series.title}}</td>
               <td *ngIf="movie.series.length == 1 && movie.series[0].sequences.length > 1 && j == 0"
                 [attr.rowspan]="movie.series[0].sequences.length" colspan="2" class="table-category"
                 style="vertical-align: middle; text-align: center;">{{movie.category}}</td>
               <td *ngIf="movie.series.length == 1 && movie.series[0].sequences.length == 1" colspan="2"></td>
               <td>
-                <span class="clickable" (click)="clickMovie(m, i, j)">{{getRvTitle(sequence.title)}}</span>
+                <span class="clickable" (click)="clickMovie(m, i, j)">{{sequence.title[sequence.title.rv]}}</span>
               </td>
               <td *ngIf="movie.series.length == 1 && movie.series[0].sequences.length == 1; else orderTemplate"></td>
               <ng-template #orderTemplate>
@@ -40,17 +55,19 @@
                 <table class="table table-dark table-hover">
                   <tr>
                     <td style="text-align: center; vertical-align: middle;"
-                      [attr.rowspan]="10 + movie.series[movie.opened.series].sequences[movie.opened.sequence].studios.length">
+                      [attr.rowspan]="11 + movie.series[movie.opened.series].sequences[movie.opened.sequence].studios.length">
                       <img [src]="movie.series[movie.opened.series].sequences[movie.opened.sequence].img">
                     </td>
                     <th>카테고리</th>
-                    <td>{{movie.category}}</td>
+                    <td>
+                      <span class="clickable" (click)="editCategory(m)">{{movie.category}}</span>
+                    </td>
                   </tr>
                   <tr>
                     <th>TVA</th>
                     <td>
                       <mat-progress-bar *ngIf="!movie.opened.linked" mode="indeterminate"></mat-progress-bar>
-                      <a *ngIf="movie.opened.linked"
+                      <a *ngIf="movie.opened.linked" class="detail-link"
                         [routerLink]="['/tva', movie.opened.linked._id, movie.opened.linked.series, 0]">
                         {{movie.opened.linked.title}}
                       </a>
@@ -110,19 +127,305 @@
                   <tr>
                     <th>MyAnimeList</th>
                     <td>
-                      <a [href]="'https://myanimelist.net/anime/' + movie.series[movie.opened.series].sequences[movie.opened.sequence].mal_id" target="_blank">
+                      <a [href]="'https://myanimelist.net/anime/' + movie.series[movie.opened.series].sequences[movie.opened.sequence].mal_id" target="_blank" class="detail-link">
                         {{movie.series[movie.opened.series].sequences[movie.opened.sequence].mal_id}}
                       </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="text-align: center;">
+                      <button mat-button (click)="modifyMovie(m, movie.opened.series, movie.opened.sequence)">
+                        <mat-icon>create</mat-icon>
+                      </button>
+                      <button mat-button (click)="removeMovie(m, movie.opened.series, movie.opened.sequence)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
                     </td>
                   </tr>
                 </table>
 
               </td>
             </tr>
+            <tr *ngIf="movie.modifying && i == movie.series.length-1 && j == series.sequences.length-1">
+              <td colspan="125">
+
+                <!-- modifying -->
+                <form (submit)="onModifySubmit(m, modifying.series, modifying.sequence)">
+                  <table class="table table-secondary" style="width: 70%; margin: auto;">
+                    <tr>
+                      <th style="width: 30%;">검색</th>
+                      <td>
+                        <mat-form-field class="form-item-select">
+                          <mat-label>검색옵션</mat-label>
+                          <mat-select #searchOption>
+                            <mat-option value="onnada">Onnada</mat-option>
+                            <mat-option value="mal">MyAnimeList</mat-option>
+                            <mat-option value="mal_id">MyAnimeList ID</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline">
+                          <mat-label>검색어를 입력해주세요.</mat-label>
+                          <input matInput #searchBox (keyup.enter)="searchMovie(searchOption.value, searchBox.value, m)">
+                        </mat-form-field>
+                        <button mat-flat-button type="button" (click)="searchMovie(searchOption.value, searchBox.value, m)">
+                          <mat-icon>search</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr><td colspan="2"><mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar></td></tr>
+                    <tr>
+                      <th rowspan="2">TVA</th>
+                      <td>
+                        <mat-progress-bar *ngIf="!tvas" mode="indeterminate"></mat-progress-bar>
+                        <mat-form-field *ngIf="tvas" class="form-item">
+                          <mat-label>카테고리</mat-label>
+                          <mat-select [(ngModel)]="linked.idx" name="tva_category">
+                            <mat-option *ngFor="let tva of tvas; index as t" [value]="t">{{tva.category}}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <mat-form-field *ngIf="tvas && linked" class="form-item">
+                          <mat-label>시리즈</mat-label>
+                          <mat-select [(ngModel)]="linked.series" name="tva_series" class="form-item">
+                            <mat-option *ngFor="let series of tvas[linked.idx].series; index as r" [value]="r">{{series.title}}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>제목</th>
+                      <td>
+                        <mat-radio-group [(ngModel)]="movie.modifying.title.rv" name="rv">
+                          <table class="table table-borderless inner-table">
+                            <tr>
+                              <th><mat-radio-button value="kor">KOR</mat-radio-button></th>
+                              <td>
+                                <mat-form-field class="form-item">
+                                  <input matInput placeholder="한국어 제목" [(ngModel)]="movie.modifying.title.kor" name="kor">
+                                </mat-form-field>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th><mat-radio-button value="eng">ENG</mat-radio-button></th>
+                              <td>
+                                <mat-form-field class="form-item">
+                                  <input matInput placeholder="알파벳 제목" [(ngModel)]="movie.modifying.title.eng" name="eng">
+                                </mat-form-field>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th><mat-radio-button value="jpn">JPN</mat-radio-button></th>
+                              <td>
+                                <mat-form-field class="form-item">
+                                  <input matInput placeholder="일어 제목" [(ngModel)]="movie.modifying.title.jpn" name="jpn">
+                                </mat-form-field>
+                              </td>
+                            </tr>
+                          </table>
+                        </mat-radio-group>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>순서</th>
+                      <td>
+                        <mat-form-field>
+                          <input matInput type="number" [(ngModel)]="movie.modifying.order" name="order" min="1">
+                          <span matSuffix>번째</span>
+                        </mat-form-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>방영 시기</th>
+                      <td>
+                        <mat-form-field>
+                          <input matInput placeholder="개봉일" [(ngModel)]="movie.modifying.aired" name="aired">
+                        </mat-form-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>제작사</th>
+                      <td>
+                        <mat-form-field class="form-item">
+                          <textarea matInput placeholder="제작사" [(ngModel)]="modifying.studios" name="studios" rows="4"></textarea>
+                          <mat-hint>여러 개의 경우, 줄을 나눠서 입력해주세요.</mat-hint>
+                        </mat-form-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>메모</th>
+                      <td>
+                        <mat-form-field class="form-item">
+                          <textarea matInput placeholder="메모" [(ngModel)]="movie.modifying.memo" name="memo" rows="4"></textarea>
+                        </mat-form-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="text-align: center;">
+                        <button mat-button type="submit">
+                          <mat-icon>check_circle_outline</mat-icon>
+                        </button>
+                        <button mat-button type="button" (click)="cancelModify(m)">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </table>
+                </form>
+
+              </td>
+            </tr>
+
           </ng-container>
         </ng-container>
 
       </ng-container>
     </tbody>
   </table>
+</section>
+
+<section>
+  <div class="container" id="writing-area" #writingArea>
+    <table *ngIf="!writing" class="table table-dark">
+      <tr>
+        <td>
+          <span class="clickable" (click)="writeMovie()">+ 새로 작성하기</span>
+        </td>
+      </tr>
+    </table>
+    <form (submit)="onWriteSubmit()" *ngIf="writing">
+      <table class="table table-secondary" style="width: 70%; margin: auto;">
+        <tr>
+          <th style="width: 30%;">검색</th>
+          <td>
+            <mat-form-field class="form-item-select">
+              <mat-label>검색옵션</mat-label>
+              <mat-select #writeSearchOption>
+                <mat-option value="onnada">Onnada</mat-option>
+                <mat-option value="mal">MyAnimeList</mat-option>
+                <mat-option value="mal_id">MyAnimeList ID</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>검색어를 입력해주세요.</mat-label>
+              <input matInput #writeSearchBox (keyup.enter)="searchMovie(writeSearchOption.value, writeSearchBox.value)">
+            </mat-form-field>
+            <button mat-flat-button type="button" (click)="searchMovie(writeSearchOption.value, writeSearchBox.value)">
+              <mat-icon>search</mat-icon>
+            </button>
+          </td>
+        </tr>
+        <tr><td colspan="2"><mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar></td></tr>
+        <tr>
+          <th rowspan="2">TVA</th>
+          <td>
+            <mat-progress-bar *ngIf="!tvas" mode="indeterminate"></mat-progress-bar>
+            <mat-form-field *ngIf="tvas" class="form-item">
+              <mat-label>카테고리</mat-label>
+              <mat-select [(ngModel)]="linked.idx" name="tva_category">
+                <mat-option *ngFor="let tva of tvas; index as t" [value]="t">{{tva.category}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <mat-form-field *ngIf="tvas && linked" class="form-item">
+              <mat-label>시리즈</mat-label>
+              <mat-select [(ngModel)]="linked.series" name="tva_series" (selectionChange)="seriesSelect()">
+                <mat-option *ngFor="let series of tvas[linked.idx].series; index as r" [value]="r">{{series.title}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>시리즈 메모</th>
+          <td>
+            <mat-form-field class="form-item">
+              <textarea matInput placeholder="시리즈 메모" [(ngModel)]="seriesMemo" name="seriesMemo" rows="4"></textarea>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>제목</th>
+          <td>
+            <mat-radio-group [(ngModel)]="writingMovie.title.rv" name="rv">
+              <table class="table table-borderless">
+                <tr>
+                  <th><mat-radio-button value="kor">KOR</mat-radio-button></th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <input matInput placeholder="한국어 제목" [(ngModel)]="writingMovie.title.kor" name="kor">
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <th><mat-radio-button value="eng">ENG</mat-radio-button></th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <input matInput placeholder="알파벳 제목" [(ngModel)]="writingMovie.title.eng" name="eng">
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <th><mat-radio-button value="jpn">JPN</mat-radio-button></th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <input matInput placeholder="일어 제목" [(ngModel)]="writingMovie.title.jpn" name="jpn">
+                    </mat-form-field>
+                  </td>
+                </tr>
+              </table>
+            </mat-radio-group>
+          </td>
+        </tr>
+        <tr>
+          <th>순서</th>
+          <td>
+            <mat-form-field>
+              <input matInput type="number" [(ngModel)]="writingMovie.order" name="order" min="1">
+              <span matSuffix>번째</span>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>방영 시기</th>
+          <td>
+            <mat-form-field>
+              <input matInput placeholder="개봉일" [(ngModel)]="writingMovie.aired" name="aired">
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>제작사</th>
+          <td>
+            <mat-form-field class="form-item">
+              <textarea matInput placeholder="제작사" [(ngModel)]="modifying.studios" name="studios" rows="4"></textarea>
+              <mat-hint>여러 개의 경우, 줄을 나눠서 입력해주세요.</mat-hint>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>메모</th>
+          <td>
+            <mat-form-field class="form-item">
+              <textarea matInput placeholder="메모" [(ngModel)]="writingMovie.memo" name="memo" rows="4"></textarea>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="text-align: center;">
+            <button mat-button type="submit">
+              <mat-icon>check_circle_outline</mat-icon>
+            </button>
+            <button mat-button type="button" (click)="cancelWrite()">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
 </section>

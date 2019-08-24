@@ -1,0 +1,12 @@
+.download-link {
+    color: white;
+}
+
+.download-link:hover {
+    color: grey;
+    text-decoration: none;
+}
+
+.inner-table-section {
+    padding: 0px;
+}

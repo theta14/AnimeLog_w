@@ -1,4 +1,4 @@
-import { Item } from './item';
+import { Item, ItemTitle } from './item';
 
 export class Completion extends Item {
     opened?: CompletionOpened;
@@ -15,12 +15,7 @@ export interface Series {
 }
 
 export interface Sequence {
-    title: {
-        eng: string,
-        kor: string,
-        jpn: string,
-        rv: string
-    },
+    title: ItemTitle,
     studios: string[],
     memo: string,
     mal_id: number,

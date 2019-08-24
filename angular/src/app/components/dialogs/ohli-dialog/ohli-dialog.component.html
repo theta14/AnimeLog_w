@@ -1,0 +1,39 @@
+<h2 mat-dialog-title *ngIf="!loading">[ {{data.title}} ] 검색 결과</h2>
+<div mat-dialog-content>
+  
+  <div *ngIf="loading" style="text-align: center;">
+    <mat-spinner></mat-spinner><br>
+    결과를 가져오는 중...
+  </div>
+  <div class="container" *ngIf="!loading">
+    <ng-container *ngFor="let ohli of ohlis; index as i">
+      <table class="table">
+        <tr>
+          <td style="text-align: center; vertical-align: middle;" rowspan="4">
+            <img [src]="ohli.img">
+          </td>
+          <th>OHLI</th>
+          <td>{{ohli.id}}</td>
+        </tr>
+        <tr>
+          <th>제목</th>
+          <td>{{ohli.title}}</td>
+        </tr>
+        <tr>
+          <th>방영 시작일</th>
+          <td>{{ohli.aired}}</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="text-align: center;">
+            <button (click)="selectItem(i)" mat-button>선택</button>
+          </td>
+        </tr>
+      </table>
+    </ng-container>
+    
+  </div>
+
+</div>
+<div mat-dialog-actions>
+  <button mat-button tabindex="-1" (click)="onClose()">닫기</button>
+</div>

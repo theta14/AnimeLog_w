@@ -1,3 +1,351 @@
-<p>
-  plan works!
-</p>
+<section class="container">
+  <div class="border border-secondary info-area">
+    <h4>시청 예정</h4>
+    <p>항목 수: {{plans?.length}}</p>
+    <p>
+      <button mat-flat-button (click)="openAll()">전체 열기</button>&nbsp;
+      <button mat-flat-button (click)="closeAll()">전체 닫기</button>&nbsp;
+      <button mat-flat-button (click)="write(); writingArea.scrollIntoView()">새 항목 작성</button>
+    </p>
+  </div>
+</section>
+
+<section class="container">
+  <mat-progress-bar *ngIf="!plans" mode="indeterminate"></mat-progress-bar>
+  <table class="table table-dark" *ngIf="plans">
+    <thead>
+      <tr>
+        <th (click)="align(0, 0)">타입</th>
+        <th (click)="align(0, 1)">제목</th>
+        <th (click)="align(0, 2)" colspan="120">제작사</th>
+        <th (click)="align(0, 3)">방영분기</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let item of plans; index as i">
+
+        <tr [attr.id]="item._id">
+          <td *ngIf="item.type == 'tva'">TVA</td>
+          <td *ngIf="item.type == 'movie'">극장판</td>
+          <td>
+            <span class="clickable" (click)="click(item._id)">{{item.title[item.title.rv]}}</span>
+          </td>
+          <td colspan="120" *ngIf="item.studios.length == 0">-</td>
+          <ng-container *ngIf="item.studios.length > 0">
+            <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+          </ng-container>
+          <td>{{getQuarterFromAiredDate(item.aired)}}</td>
+        </tr>
+        <tr *ngIf="item.opened">
+          <td colspan="123" style="padding: 0px;">
+          
+            <!-- detail -->
+            <table class="table table-dark">
+              <tr>
+                <td [attr.rowspan]="8 + item.studios.length" style="text-align: center; vertical-align: middle;" *ngIf="item.img">
+                  <img [src]="item.img">
+                </td>
+                <td [attr.rowspan]="8 + item.studios.length" style="text-align: center; vertical-align: middle;" *ngIf="!item.img">
+                  <img src="assets/no_image.jpg">
+                </td>
+                <th>타입</th>
+                <td *ngIf="item.type == 'tva'">TVA</td>
+                <td *ngIf="item.type == 'movie'">극장판</td>
+              </tr>
+              <tr>
+                <th rowspan="3" style="vertical-align: middle;">제목</th>
+                <td *ngIf="item.title.rv == 'kor'">
+                  <b>
+                    {{item.title.kor}}
+                  </b>
+                </td>
+                <td *ngIf="item.title.rv != 'kor' && item.title.kor">
+                  {{item.title.kor}}
+                </td>
+                <td *ngIf="!item.title.kor" class="no-item">-</td>
+              </tr>
+              <tr>
+                <td *ngIf="item.title.rv == 'eng'">
+                  <b>
+                    {{item.title.eng}}
+                  </b>
+                </td>
+                <td *ngIf="item.title.rv != 'eng' && item.title.eng">
+                  {{item.title.eng}}
+                </td>
+                <td *ngIf="!item.title.eng" class="no-item">-</td>
+              </tr>
+              <tr>
+                <td *ngIf="item.title.rv == 'jpn'">
+                  <b>
+                    {{item.title.jpn}}
+                  </b>
+                </td>
+                <td *ngIf="item.title.rv != 'jpn' && item.title.jpn">
+                  {{item.title.jpn}}
+                </td>
+                <td *ngIf="!item.title.jpn" class="no-item">-</td>
+              </tr>
+              <tr>
+                <th>방영 시기</th>
+                <td>{{item.aired}}</td>
+              </tr>
+              <tr *ngFor="let studio of item.studios; index as j">
+                <th *ngIf="j == 0" [attr.rowspan]="item.studios.length" style="vertical-align: middle;">제작사</th>
+                <td>{{studio}}</td>
+              </tr>
+              <tr>
+                <th>메모</th>
+                <td>{{item.memo}}</td>
+              </tr>
+              <tr>
+                <th>MyAnimeList</th>
+                <td>
+                  <a [href]="'https://myanimelist.net/anime/' + item.mal_id" target="_blank" *ngIf="item.mal_id" class="detail-link">
+                    {{item.mal_id}}
+                  </a>
+                  <span *ngIf="!item.mal_id" class="no-item">-</span>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" style="text-align: center;">
+                  <button mat-button (click)="modify(item._id)">
+                    <mat-icon>create</mat-icon>
+                  </button>
+                  <a mat-button [routerLink]="['/', planMap.get(item._id).type, 'data-from-plan', item._id]" class="no-hover-link">
+                    <mat-icon>input</mat-icon>
+                  </a>
+                  <a mat-button [routerLink]="['/watching/data-from-plan', item._id]" class="no-hover-link">
+                    <mat-icon>add_to_queue</mat-icon>
+                  </a>
+                  <button mat-button (click)="remove(item._id, i, true)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </table>
+
+          </td>
+        </tr>
+        <tr *ngIf="item.modifying">
+          <td colspan="122">
+            
+            <!-- modifying -->
+            <form (submit)="onModifySubmit(item._id, i, true)">
+              <table class="table table-secondary" style="width: 70%; margin: auto;">
+                <tr>
+                  <th style="width: 30%;">검색</th>
+                  <td>
+                    <mat-form-field class="form-item-select">
+                      <mat-label>검색옵션</mat-label>
+                      <mat-select #searchOption>
+                        <mat-option value="onnada">Onnada</mat-option>
+                        <mat-option value="mal">MyAnimeList</mat-option>
+                        <mat-option value="mal_id">MyAnimeList ID</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>검색어를 입력해주세요.</mat-label>
+                      <input matInput #searchBox (keyup.enter)="search(searchOption.value, searchBox.value, item.modifying)">
+                    </mat-form-field>
+                    <button mat-flat-button type="button" (click)="search(searchOption.value, searchBox.value, item.modifying)">
+                      <mat-icon>search</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+                <tr><td colspan="2"><mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar></td></tr>
+                <tr>
+                  <th>제목</th>
+                  <td>
+                    <mat-radio-group [(ngModel)]="item.modifying.title.rv" name="rv">
+                      <table class="table table-borderless inner-table">
+                        <tr>
+                          <th><mat-radio-button value="kor">KOR</mat-radio-button></th>
+                          <td>
+                            <mat-form-field class="form-item">
+                              <input matInput placeholder="한국어 제목" [(ngModel)]="item.modifying.title.kor" name="kor">
+                            </mat-form-field>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><mat-radio-button value="eng">ENG</mat-radio-button></th>
+                          <td>
+                            <mat-form-field class="form-item">
+                              <input matInput placeholder="알파벳 제목" [(ngModel)]="item.modifying.title.eng" name="eng">
+                            </mat-form-field>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><mat-radio-button value="jpn">JPN</mat-radio-button></th>
+                          <td>
+                            <mat-form-field class="form-item">
+                              <input matInput placeholder="일어 제목" [(ngModel)]="item.modifying.title.jpn" name="jpn">
+                            </mat-form-field>
+                          </td>
+                        </tr>
+                      </table>
+                    </mat-radio-group>
+                  </td>
+                </tr>
+                <tr>
+                  <th>방영 시기</th>
+                  <td>
+                    <mat-form-field>
+                      <input matInput placeholder="방영 시작일" [(ngModel)]="item.modifying.aired" name="aired">
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <th>제작사</th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <textarea matInput placeholder="제작사" [(ngModel)]="studios" name="studios" rows="4"></textarea>
+                      <mat-hint>여러 개의 경우, 줄을 나눠서 입력해주세요.</mat-hint>
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <th>메모</th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <textarea matInput placeholder="메모" [(ngModel)]="item.modifying.memo" name="memo" rows="4"></textarea>
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="text-align: center;">
+                    <button mat-button type="submit">
+                      <mat-icon>check_circle_outline</mat-icon>
+                    </button>
+                    <button mat-button type="button" (click)="closeEdit(item._id)">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              </table>
+            </form>
+
+          </td>
+        </tr>
+
+      </ng-container>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="container" #writingArea>
+    <table *ngIf="!writing" class="table table-dark">
+      <tr>
+        <td>
+          <span class="clickable" (click)="write()">+ 새로 작성하기</span>
+        </td>
+      </tr>
+    </table>
+    <form (submit)="onWriteSubmit()" *ngIf="writing">
+      <table class="table table-secondary" style="width: 70%; margin: auto;">
+        <tr>
+          <th style="width: 30%;">검색</th>
+          <td>
+            <mat-form-field class="form-item-select">
+              <mat-label>검색옵션</mat-label>
+              <mat-select #searchOption>
+                <mat-option value="onnada">Onnada</mat-option>
+                <mat-option value="mal">MyAnimeList</mat-option>
+                <mat-option value="mal_id">MyAnimeList ID</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>검색어를 입력해주세요.</mat-label>
+              <input matInput #searchBox (keyup.enter)="search(searchOption.value, searchBox.value, writing)">
+            </mat-form-field>
+            <button mat-flat-button type="button" (click)="search(searchOption.value, searchBox.value, writing)">
+              <mat-icon>search</mat-icon>
+            </button>
+          </td>
+        </tr>
+        <tr><td colspan="2"><mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar></td></tr>
+        <tr>
+          <th>타입</th>
+          <td>
+            <mat-form-field>
+              <mat-label>타입</mat-label>
+              <mat-select [(ngModel)]="writing.type" name="type">
+                <mat-option value="tva">TVA</mat-option>
+                <mat-option value="movie">극장판</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>제목</th>
+          <td>
+            <mat-radio-group [(ngModel)]="writing.title.rv" name="rv">
+              <table class="table table-borderless">
+                <tr>
+                  <th><mat-radio-button value="kor">KOR</mat-radio-button></th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <input matInput placeholder="한국어 제목" [(ngModel)]="writing.title.kor" name="kor">
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <th><mat-radio-button value="eng">ENG</mat-radio-button></th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <input matInput placeholder="알파벳 제목" [(ngModel)]="writing.title.eng" name="eng">
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <th><mat-radio-button value="jpn">JPN</mat-radio-button></th>
+                  <td>
+                    <mat-form-field class="form-item">
+                      <input matInput placeholder="일어 제목" [(ngModel)]="writing.title.jpn" name="jpn">
+                    </mat-form-field>
+                  </td>
+                </tr>
+              </table>
+            </mat-radio-group>
+          </td>
+        </tr>
+        <tr>
+          <th>방영 시기</th>
+          <td>
+            <mat-form-field>
+              <input matInput placeholder="방영 시작일" [(ngModel)]="writing.aired" name="aired">
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>제작사</th>
+          <td>
+            <mat-form-field class="form-item">
+              <textarea matInput placeholder="제작사" [(ngModel)]="studios" name="studios" rows="4"></textarea>
+              <mat-hint>여러 개의 경우, 줄을 나눠서 입력해주세요.</mat-hint>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <th>메모</th>
+          <td>
+            <mat-form-field class="form-item">
+              <textarea matInput placeholder="메모" [(ngModel)]="writing.memo" name="memo" rows="4"></textarea>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="text-align: center;">
+            <button mat-button type="submit">
+              <mat-icon>check_circle_outline</mat-icon>
+            </button>
+            <button mat-button type="button" (click)="closeEdit()">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+</section>

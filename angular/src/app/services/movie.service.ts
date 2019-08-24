@@ -26,11 +26,19 @@ export class MovieService {
   }
 
   modifyMovie(movie: Movie): Observable<Movie> {
-    return this.http.put<Movie>('/api/movies', movie).pipe();
+    return this.http.put<Movie>(`/api/movies/${movie._id}`, movie).pipe();
   }
 
-  removeMovie(_id: string): Observable<any> {
-    return this.http.delete(`/api/movies/${_id}`).pipe();
+  removeMovie(_id: string, series: number, sequence: number): Observable<any> {
+    return this.http.delete(`/api/movies/${_id}/${series}/${sequence}`).pipe();
+  }
+
+  count(): Observable<number> {
+    return this.http.get<number>(`/api/movies/count`).pipe();
+  }
+
+  getRandom(): Observable<Movie> {
+    return this.http.get<Movie>('/api/movies/random').pipe();
   }
 
 }

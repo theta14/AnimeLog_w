@@ -1,9 +1,26 @@
 .mat-tabs:hover {
     text-decoration: none;
+    color: rgb(119, 119, 120);
 }
 
 footer * {
     /* color: rgb(0, 175, 219); */
     /* color: white; */
     color: rgb(235, 235, 235);
+}
+
+#scroll-button {
+    background-color: rgb(248, 249, 250);
+    position: fixed;
+    width: 40px;
+    height: 60px;
+    right: 5px;
+    bottom: 5px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+#scroll-button td:hover {
+    border-radius: 5px;
+    background-color: rgb(186, 196, 205);
 }

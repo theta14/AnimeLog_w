@@ -1,0 +1,28 @@
+.carousel-item {
+    height: 42rem;
+}
+
+li {
+    margin: .75rem;
+}
+
+@media (min-width: 40em) {
+    .carousel-caption p {
+        margin-bottom: 1.25rem;
+        font-size: 1.25rem;
+        line-height: 1.4;
+    }
+}
+
+.carousel-button:hover {
+    color: black;
+    text-decoration: none;
+}
+
+.searched-link {
+    color: white;
+}
+
+.searched-link:hover {
+    color: white;
+}

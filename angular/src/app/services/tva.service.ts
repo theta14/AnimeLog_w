@@ -33,4 +33,12 @@ export class TvaService {
     return this.http.delete(`/api/tvas/${_id}/${series}/${sequence}`).pipe();
   }
 
+  count(): Observable<number> {
+    return this.http.get<number>(`/api/tvas/count`).pipe();
+  }
+
+  getRandom(): Observable<Tva> {
+    return this.http.get<Tva>('/api/tvas/random').pipe();
+  }
+
 }

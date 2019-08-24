@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>{{data.title}}</h2>
+<div mat-dialog-content>
+  <p>{{data.explain}}</p>
+  <mat-form-field style="width: 100%;">
+    <input matInput [(ngModel)]="data.text" [placeholder]="data.placeholder" #_self (click)="_self.select()">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button tabindex="-1" (click)="onClose()">닫기</button>
+  <button mat-button tabindex="-1" [mat-dialog-close]="data.text" cdkFocusInitial>확인</button>
+</div>

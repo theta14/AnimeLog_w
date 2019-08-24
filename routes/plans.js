@@ -3,17 +3,20 @@ var router = express.Router();
 const Plan = require('../models/plan');
 
 router.get('/', function(req, res, next) {
-    Plan.find({}, (err, plans) => {
-        if ( err ) res.status(500).json(err);
-        else res.json(plans);
-    });
+    Plan.find({})
+        .then(plans => res.json(plans))
+        .catch(err => res.status(500).json(err));
+});
+
+router.get('/count', async (req, res, next) => {
+    const count = await Plan.countDocuments();
+    res.json(count);
 });
 
 router.get('/:_id', (req, res, next) => {
-    Plan.findOne({_id: req.params._id}, (err, plan) => {
-        if ( err ) res.status(500).json(err);
-        else res.json(plan);
-    });
+    Plan.findOne({_id: req.params._id})
+        .then(plan => res.json(plan))
+        .catch(err => res.status(500).json(err));
 });
 
 router.post('/', (req, res, next) => {
@@ -21,12 +24,14 @@ router.post('/', (req, res, next) => {
         type: req.body.type,
         title: req.body.title,
         memo: req.body.memo,
-        mal_id: req.body.mal_id
+        mal_id: req.body.mal_id,
+        img: req.body.img,
+        aired: req.body.aired,
+        studios: req.body.studios
     });
-    Plan.addPlan(newPlan, (err, plan) => {
-        if ( err ) res.status(500).json(err);
-        else res.status(201).json(plan);
-    });
+    newPlan.save()
+        .then(plan => res.status(201).json(plan))
+        .catch(err => res.status(500).json(err));
 });
 
 router.put('/:_id', (req, res, next) => {
@@ -34,19 +39,20 @@ router.put('/:_id', (req, res, next) => {
         type: req.body.type,
         title: req.body.title,
         memo: req.body.memo,
-        mal_id: req.body.mal_id
+        mal_id: req.body.mal_id,
+        img: req.body.img,
+        aired: req.body.aired,
+        studios: req.body.studios
     };
-    Plan.findOneAndUpdate({_id: req.params._id}, newPlan, (err, plan) => {
-        if ( err ) res.status(500).json(err);
-        else res.json(plan);
-    });
+    Plan.findOneAndUpdate({_id: req.params._id}, newPlan)
+        .then(plan => res.json(plan))
+        .catch(err => res.status(500).json(err));
 });
 
 router.delete('/:_id', (req, res, next) => {
-    Plan.findOneAndDelete({_id: req.params._id}, (err, plan) => {
-        if ( err ) res.status(500).json(err);
-        else res.status(204).json(null);
-    });
+    Plan.findOneAndDelete({_id: req.params._id})
+        .then(plan => res.status(204).json(null))
+        .catch(err => res.status(500).json(err));
 });
 
 module.exports = router;

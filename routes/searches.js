@@ -5,6 +5,11 @@ const request = require('request');
 const cheerio = require('cheerio');
 const premiereds = require('../methods/premiereds');
 const dates = require('../methods/dates');
+// ==================================================
+const Tva = require('../models/tva');
+const Movie = require('../models/movie');
+const Watching = require('../models/watching');
+const Plan = require('../models/plan');
 
 router.get('/', function(req, res, next) {
     res.send('');
@@ -19,28 +24,19 @@ router.get('/onnada', (req, res, next) => {
     
         new Promise((resolve, reject) => {
             for (let i=0; i<li.length; i++) {
+                const el = li[i].firstChild.next.children[2];
                 Mal.search('anime', {
-                    q: li[i].firstChild.next.children[2].children[3].children[0].children[0].data.substr(5),
+                    q: el.children[3].children[0].children[0].data.substr(5),
                     limit: 3
                 })
                 .then(value => {
                     outerLoop: for (let result of value.results) {
                         for (let each of arr) if ( result.mal_id == each.mal_id ) continue outerLoop;
-                        let type = undefined;
-                        switch(result.type) {
-                            case 'TV':
-                                type = 'tva';
-                                break;
-                            case 'Movie':
-                                type = 'movie';
-                                break;
-                            default:
-                                type = result.type;
-                        }
                         let date = new Date(result.start_date);
                         arr.push({
-                            type: type,
+                            type: result.type,
                             title: result.title,
+                            title_kor: el.children[1].children[0].children[0].data,
                             mal_id: result.mal_id,
                             img: result.image_url,
                             premiered: {
@@ -67,20 +63,9 @@ router.get('/mal', (req, res, next) => {
     })
     .then(value => {
         for (let result of value.results) {
-            let type = undefined;
-            switch(result.type) {
-                case 'TV':
-                    type = 'tva';
-                    break;
-                case 'Movie':
-                    type = 'movie';
-                    break;
-                default:
-                    type = result.type;
-            }
             let date = new Date(result.start_date);
             arr.push({
-                type: type,
+                type: result.type,
                 title: result.title,
                 mal_id: result.mal_id,
                 img: result.image_url,
@@ -120,7 +105,11 @@ router.get('/mal/:mal_id', (req, res, next) => {
             }
         } else aired = dates.getFormattedDate(value.aired);
 
+        let type = value.type.toLowerCase();
+        if ( type == 'tv' ) type = 'tva';
+
         res.json({
+            type: type,
             title: {
                 eng: value.title,
                 jpn: value.title_japanese

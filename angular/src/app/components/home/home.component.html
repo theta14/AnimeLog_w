@@ -1,3 +1,244 @@
-<mat-form-field>
-  <input matInput placeholder="Input">
-</mat-form-field>
+<div id="rwCarousel" class="carousel slide mdl-shadow--2dp" data-ride="carousel">
+
+  <ol class="carousel-indicators">
+    <li data-target="#rwCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#rwCarousel" data-slide-to="1"></li>
+    <li data-target="#rwCarousel" data-slide-to="2"></li>
+    <li data-target="#rwCarousel" data-slide-to="3"></li>
+  </ol>
+
+  <div class="carousel-inner">
+    <div [class]="'carousel-item active bg-svg-' + backgrounds[0]">
+      <div class="container">
+        <div class="carousel-caption text-left">
+          <h3>{{carousel[0]?.type}}</h3>
+          <h4>{{carousel[0]?.title}}</h4>
+          <p>{{carousel[0]?.content}}</p>
+          <p><a mat-flat-button [routerLink]="carousel[0]?.link" role="button" class="carousel-button">보기</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div [class]="'carousel-item bg-svg-' + backgrounds[1]">
+      <div class="container">
+        <div class="carousel-caption">
+          <h3>{{carousel[1]?.type}}</h3>
+          <h4>{{carousel[1]?.title}}</h4>
+          <p>{{carousel[1]?.content}}</p>
+          <p><a mat-flat-button [routerLink]="carousel[1]?.link" role="button" class="carousel-button">보기</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div [class]="'carousel-item bg-svg-' + backgrounds[2]">
+      <div class="container">
+        <div class="carousel-caption text-right">
+          <h3>{{carousel[2]?.type}}</h3>
+          <h4>{{carousel[2]?.title}}</h4>
+          <p>{{carousel[2]?.content}}</p>
+          <p><a mat-flat-button [routerLink]="carousel[2]?.link" role="button" class="carousel-button">보기</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div [class]="'carousel-item bg-svg-' + backgrounds[3]">
+      <div class="container">
+        <div class="carousel-caption">
+          <h3>{{carousel[3]?.type}}</h3>
+          <h4>{{carousel[3]?.title}}</h4>
+          <p>{{carousel[3]?.content}}</p>
+          <p><a mat-flat-button [routerLink]="carousel[3]?.link" role="button" class="carousel-button">보기</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a class="carousel-control-prev" href="#rwCarousel" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#rwCarousel" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+<section></section>
+
+<section class="container">
+  <table class="table table-dark">
+    <tr>
+      <th>TVA</th>
+      <td>{{allItems?.tvas.length}}개</td>
+    </tr>
+    <tr>
+      <th>극장판</th>
+      <td>{{allItems?.movies.length}}개</td>
+    </tr>
+    <tr>
+      <th>시청 중</th>
+      <td>{{allItems?.watchings.length}}개</td>
+    </tr>
+    <tr>
+      <th>시청 예정</th>
+      <td>{{allItems?.plans.length}}개</td>
+    </tr>
+  </table>
+</section>
+
+<section class="container">
+  <table class="table table-secondary">
+    <tr>
+      <td>
+        <div style="margin: auto; width: 60%; color: black;">
+          <mat-form-field appearance="outline" style="width: 80%;">
+            <mat-label>검색</mat-label>
+            <input matInput placeholder="검색어를 입력해주세요." (keyup.enter)="search(text.value)" #text>
+          </mat-form-field>
+          <button mat-flat-button type="button" (click)="search(text.value)">
+            <mat-icon>search</mat-icon>
+          </button>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div *ngIf="searchedText">
+    <p><b>{{searchedText}}</b> 검색결과 : {{searchedItems.tvas.length + searchedItems.movies.length + searchedItems.watchings.length + searchedItems.plans.length}}건</p>
+
+    <table class="table table-dark">
+      <caption>TVA ({{searchedItems.tvas.length}}건)</caption>
+      <thead>
+        <tr>
+          <th>시리즈</th>
+          <th>제목</th>
+          <th>시즌</th>
+          <th colspan="120">제작사</th>
+          <th>화수</th>
+          <th>방영분기</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let tva of searchedItems.tvas | slice: pageEvents.tva.pageIndex * pageEvents.tva.pageSize : (pageEvents.tva.pageIndex + 1) * pageEvents.tva.pageSize; index as t">
+          <tr>
+            <td><span *ngIf="tva.seriesTitle != tva.title[tva.title.rv]">{{tva.seriesTitle}}</span></td>
+            <td>
+              <a [routerLink]="['/tva', tva._id, tva.series, tva.sequence]" class="searched-link">{{tva.title[tva.title.rv]}}</a>
+            </td>
+            <td>{{tva.season}}</td>
+            <td *ngFor="let studio of tva.studios" [attr.colspan]="120 / tva.studios.length">{{studio}}</td>
+            <td>{{tva.episodes}}</td>
+            <td>'{{tva.premiered.year.toString().substring(2)}} - {{tva.premiered.quarter}}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <mat-paginator *ngIf="searchedItems.tvas.length > pageSizeOptions[0]"
+      [length]="searchedItems.tvas.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="pageEvents.tva = $event"></mat-paginator><br><br>
+
+    <table class="table table-dark">
+      <caption>극장판 ({{searchedItems.movies.length}}건)</caption>
+      <thead>
+        <tr>
+          <th>시리즈</th>
+          <th>제목</th>
+          <th>순서</th>
+          <th colspan="120">제작사</th>
+          <th>개봉일</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let movie of searchedItems.movies | slice: pageEvents.movie.pageIndex * pageEvents.movie.pageSize : (pageEvents.movie.pageIndex + 1) * pageEvents.movie.pageSize; index as m">
+          <tr>
+            <td><span *ngIf="movie.seriesTitle != movie.title[movie.title.rv]">{{movie.seriesTitle}}</span></td>
+            <td>
+              <a [routerLink]="['/movie', movie._id, movie.series, movie.sequence]" class="searched-link">{{movie.title[movie.title.rv]}}</a>
+            </td>
+            <td>{{movie.order}}</td>
+            <td *ngFor="let studio of movie.studios" [attr.colspan]="120 / movie.studios.length">{{studio}}</td>
+            <td>{{movie.aired}}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <mat-paginator *ngIf="searchedItems.movies.length > pageSizeOptions[0]"
+      [length]="searchedItems.movies.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="pageEvents.movie = $event"></mat-paginator><br><br>
+
+    <table class="table table-dark">
+      <caption>시청 중인 목록 ({{searchedItems.watchings.length}}건)</caption>
+      <thead>
+        <tr>
+          <th>타입</th>
+          <th>방영중</th>
+          <th>제목</th>
+          <th colspan="120">제작사</th>
+          <th>방영분기</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of searchedItems.watchings | slice: pageEvents.watching.pageIndex * pageEvents.watching.pageSize : (pageEvents.watching.pageIndex + 1) * pageEvents.watching.pageSize; index as i">
+          <tr>
+            <td *ngIf="item.type == 'tva'">TVA</td>
+            <td *ngIf="item.type == 'movie'">극장판</td>
+            <td *ngIf="item.ohli_id">O</td>
+            <td *ngIf="!item.ohli_id">X</td>
+            <td>
+              <a [routerLink]="['/watching', item._id]" class="searched-link">{{item.title[item.title.rv]}}</a>
+            </td>
+            <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+            <td>'{{item.premiered.year.toString().substring(2)}} - {{item.premiered.quarter}}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <mat-paginator *ngIf="searchedItems.watchings.length > pageSizeOptions[0]"
+      [length]="searchedItems.watchings.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="pageEvents.watching = $event"></mat-paginator><br><br>
+
+    <table class="table table-dark">
+      <caption>시청 예정 목록 ({{searchedItems.plans.length}}건)</caption>
+      <thead>
+        <tr>
+          <th>타입</th>
+          <th>제목</th>
+          <th colspan="120">제작사</th>
+          <th>방영분기</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of searchedItems.plans | slice: pageEvents.plan.pageIndex * pageEvents.plan.pageSize : (pageEvents.plan.pageIndex + 1) * pageEvents.plan.pageSize; index as i">
+          <tr>
+            <td *ngIf="item.type == 'tva'">TVA</td>
+            <td *ngIf="item.type == 'movie'">극장판</td>
+            <td>
+              <a [routerLink]="['/plan', item._id]" class="searched-link">{{item.title[item.title.rv]}}</a>
+            </td>
+            <td colspan="120" *ngIf="item.studios.length == 0">-</td>
+            <ng-container *ngIf="item.studios.length > 0">
+              <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+            </ng-container>
+            <td>{{getQuarterFromAiredDate(item.aired)}}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <mat-paginator *ngIf="searchedItems.plans.length > pageSizeOptions[0]"
+      [length]="searchedItems.plans.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="pageEvents.plan = $event"></mat-paginator><br><br>
+  </div>
+
+</section>

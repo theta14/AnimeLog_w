@@ -9,8 +9,9 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config = require('./config/database');
 
-mongoose.Promise = require('bluebird');
-mongoose.connect(config.database, { useNewUrlParser: true });
+// mongoose.Promise = require('bluebird');
+mongoose.Promise = global.Promise;
+mongoose.connect(config.database, { useNewUrlParser: true, useFindAndModify: false });
 mongoose.connection.on('connected', () => console.log('Connected to database ' + config.database));
 mongoose.connection.on('error', (err) => console.log('Database error ' + err));
 

@@ -1,3 +1,12 @@
+<table id="scroll-button">
+    <tr>
+        <td class="clickable" (click)="scrollUp()"><mat-icon>keyboard_arrow_up</mat-icon></td>
+    </tr>
+    <tr>
+        <td class="clickable" (click)="scrollDown()"><mat-icon>keyboard_arrow_down</mat-icon></td>
+    </tr>
+</table>
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light rounded navbar-fixed-top mdl-shadow--2dp">
     <a class="navbar-brand" routerLink="/">AnimeLog W</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,19 +30,20 @@
 <ng-flash-message></ng-flash-message>
 
 <div id="main-part" class="bg-dark">
-    <br><br><br><br>
+    <div *ngIf="router.url != '/'">
+        <br><br><br><br>
+    </div>
     <main role="main">
-        <div class="container">
-            <router-outlet></router-outlet>
-        </div>
+        <router-outlet></router-outlet>
     </main>
     <br><br><br>
 </div>
 
-<footer class="text-muted py-5 bg-secondary">
+<footer class="text-muted py-5 bg-secondary" id="footer">
     <div class="container">
-        <p><b>Powered by PJH</b></p>
+        <p><b>Powered by ParkJH</b></p>
         <p><a target="_blank" href="https://getbootstrap.com/">Bootstrap</a></p>
         <p><a target="_blank" href="https://material.angular.io/">Material</a></p>
+        <p><a target="_blank" href="https://github.com/theta14/AnimeLog_w.git">Github</a></p>
     </div>
 </footer>

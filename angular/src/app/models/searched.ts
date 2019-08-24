@@ -1,6 +1,7 @@
 export class Searched {
     type: string;
     title: string;
+    title_kor: string;
     mal_id: number;
     img: string;
     premiered: {
@@ -10,7 +11,9 @@ export class Searched {
 }
 
 export class MalSearched {
+    type: string;
     title: {
+        kor: string,
         eng: string,
         jpn: string
     };
@@ -18,23 +21,27 @@ export class MalSearched {
         year: number,
         quarter: number
     };
-    aired: Aired | string;
+    aired: {
+        start: string,
+        end: string
+    };
     episodes: number; // can be null when it is a movie
     studios: string[];
     mal_id: number;
     img: string;
 }
-
-export interface Aired {
-    start: string,
-    end: string
-}
   
 export interface SendingSearchedProtocol {
     search: {
-        type: string,
         text: string,
         option: string
     },
     malSearched: MalSearched
+}
+
+export function searchedProtocolFactory(text: string, option: string): SendingSearchedProtocol {
+    return {
+        search: {text: text, option: option},
+        malSearched: null
+    };
 }

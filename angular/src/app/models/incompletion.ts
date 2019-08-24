@@ -1,16 +1,12 @@
-import { Item } from './item';
+import { Item, ItemTitle } from './item';
 
 export class Incompletion extends Item {
     type: string;
-    title: string;
+    title: ItemTitle;
     memo: string;
     mal_id: number;
     img: string;
     opened?: boolean;
-    premiered: {
-        year: number,
-        quarter: number
-    };
     aired: string;
     studios: string[];
 }

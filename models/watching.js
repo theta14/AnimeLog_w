@@ -2,15 +2,14 @@ const mongoose = require('mongoose');
 
 const WatchingSchema = mongoose.Schema({
   type: String, // 'tva' or 'movie'
-  title: String,  // represented title, not gonna be saved after watched
+  title: Object,
   memo: String,
   mal_id: Number,
-  ohli_id: Number,  // id of OHLI, to take a subtitle, if it is not being airing it would be null
-  img: String
+  ohli_id: Number,
+  premiered: Object,
+  aired: String,  // the first aired date
+  img: String,
+  studios: Array
 });
 
 module.exports = mongoose.model('Watching', WatchingSchema);
-
-module.exports.addWatching = (newWatching, callback) => {
-  newWatching.save(callback);
-}
