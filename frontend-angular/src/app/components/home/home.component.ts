@@ -5,9 +5,10 @@ import { WatchingService } from 'src/app/services/watching.service';
 import { PlanService } from 'src/app/services/plan.service';
 import { Completion, Sequence } from 'src/app/models/completion';
 import { Incompletion } from 'src/app/models/incompletion';
-import { PageEvent } from '@angular/material';
+import { PageEvent, MatDialog } from '@angular/material';
 import { Carousel, Items, SearchedItems, PageEvents, SearchedSequence } from './home.component.model';
 import { TitleService } from 'src/app/services/title.service';
+import { StudioDialogComponent } from '../dialogs/studio-dialog/studio-dialog.component';
 
 @Component({
   selector: 'app-home',
@@ -32,7 +33,8 @@ export class HomeComponent implements OnInit {
     private movieService: MovieService,
     private watchingService: WatchingService,
     private planService: PlanService,
-    private titleService: TitleService
+    private titleService: TitleService,
+    private dialog: MatDialog
   ) {
     this.titleService.setDefaultTitle();
     this.tvaService.getTvas().subscribe(tvas => {
@@ -228,6 +230,10 @@ export class HomeComponent implements OnInit {
     let year = date.getFullYear().toString().substring(2);
     let qtr = Math.floor((date.getMonth() + 4) / 3);
     return `'${year} - ${qtr}`;
+  }
+
+  findByStudio(studio: string) {
+    this.dialog.open(StudioDialogComponent, {data: studio});
   }
 
 }

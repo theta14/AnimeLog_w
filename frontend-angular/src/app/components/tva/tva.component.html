@@ -47,7 +47,9 @@
                 <ng-template #seasonTemplate>
                   <td>{{sequence.season}}</td>
                 </ng-template>
-                <td *ngFor="let studio of sequence.studios" [attr.colspan]="120 / sequence.studios.length">{{studio}}</td>
+                <td *ngFor="let studio of sequence.studios" [attr.colspan]="120 / sequence.studios.length">
+                  <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+                </td>
                 <td>{{sequence.episodes}}</td>
                 <td>'{{sequence.premiered.year.toString().substring(2)}} - {{sequence.premiered.quarter}}</td>
               </tr>
@@ -133,7 +135,9 @@
                     <tr *ngFor="let studio of tva.series[tva.opened.series].sequences[tva.opened.sequence].studios; index as s">
                       <th *ngIf="s == 0" style="vertical-align: middle;"
                         [attr.rowspan]="tva.series[tva.opened.series].sequences[tva.opened.sequence].studios.length">제작사</th>
-                      <td>{{studio}}</td>
+                      <td>
+                        <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+                      </td>
                     </tr>
                     <tr>
                       <th>메모</th>
@@ -397,6 +401,9 @@
                     <mat-form-field class="form-item">
                       <input matInput placeholder="한국어 제목" [(ngModel)]="writingTva.title.kor" name="kor">
                     </mat-form-field>
+                    <button mat-icon-button (click)="toCategory('kor')" type="button">
+                      <mat-icon>swap_vert</mat-icon>
+                    </button>
                   </td>
                 </tr>
                 <tr>
@@ -405,6 +412,9 @@
                     <mat-form-field class="form-item">
                       <input matInput placeholder="알파벳 제목" [(ngModel)]="writingTva.title.eng" name="eng">
                     </mat-form-field>
+                    <button mat-icon-button (click)="toCategory('eng')" type="button">
+                      <mat-icon>swap_vert</mat-icon>
+                    </button>
                   </td>
                 </tr>
                 <tr>
@@ -413,6 +423,9 @@
                     <mat-form-field class="form-item">
                       <input matInput placeholder="일어 제목" [(ngModel)]="writingTva.title.jpn" name="jpn">
                     </mat-form-field>
+                    <button mat-icon-button (click)="toCategory('jpn')" type="button">
+                      <mat-icon>swap_vert</mat-icon>
+                    </button>
                   </td>
                 </tr>
               </table>

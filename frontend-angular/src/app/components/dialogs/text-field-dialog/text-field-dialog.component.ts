@@ -21,7 +21,7 @@ export class TextFieldDialogComponent {
 
 export interface SendingTextProtocol {
   title: string,
-  explan: string,
+  explain: string,
   text: string,
   placeholder: string
 }

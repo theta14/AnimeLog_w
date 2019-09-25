@@ -3,7 +3,7 @@ import { Watching } from 'src/app/models/watching';
 import { WatchingService } from 'src/app/services/watching.service';
 import { ActivatedRoute } from '@angular/router';
 import { NgFlashMessageService } from 'ng-flash-messages';
-import { SendingSearchedProtocol, searchedProtocolFactory, MalSearched } from 'src/app/models/searched';
+import { SendingSearchedProtocol, searchedProtocolFactory, MalSearched, Broadcast } from 'src/app/models/searched';
 import { SearchDialogComponent } from '../dialogs/search-dialog/search-dialog.component';
 import { MatDialog } from '@angular/material';
 import { SearchService } from 'src/app/services/search.service';
@@ -13,6 +13,7 @@ import { OhliDialogComponent } from '../dialogs/ohli-dialog/ohli-dialog.componen
 import { PlanService } from 'src/app/services/plan.service';
 import { HeaderAlign } from 'src/app/models/headerAlign';
 import { TitleService } from 'src/app/services/title.service';
+import { StudioDialogComponent } from '../dialogs/studio-dialog/studio-dialog.component';
 
 @Component({
   selector: 'app-watching',
@@ -30,6 +31,10 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
 
   plan_id: string = null;
 
+  private readonly days: string[] = [
+    '일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'
+  ];
+
   constructor(
     private watchingService: WatchingService,
     private planService: PlanService,
@@ -39,7 +44,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
     private searchService: SearchService,
     private titleService: TitleService
   ) {
-    super([1, 1], [4, 4]);
+    super([1, 1], [5, 4]);
     this.titleService.setTitle('시청 중');
     this.watchingService.getWatchings().subscribe(watchings => {
       this.watchingMap = new Map<string, Watching>();
@@ -63,6 +68,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
       case 1: return (a: Watching, b: Watching) => { return a.title[a.title.rv].localeCompare(b.title[b.title.rv]) * this.alignments[num][standard] }
       case 2: return (a: Watching, b: Watching) => { return a.studios[0].localeCompare(b.studios[0]) * this.alignments[num][standard] }
       case 3: return (a: Watching, b: Watching) => { return (new Date(a.aired ? a.aired : null).getTime() - new Date(b.aired ? b.aired : null).getTime()) * this.alignments[num][standard] }
+      case 4: return (a: Watching, b: Watching) => { return (new Date(a.aired).getDay() - new Date(b.aired).getDay()) * this.alignments[num][standard] }
       default: return null;
     }
   }
@@ -118,6 +124,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
     watching.title.jpn = malSearched.title.jpn;
     watching.aired = malSearched.aired.start;
     watching.premiered = malSearched.premiered;
+    watching.broadcast = malSearched.broadcast;
     watching.mal_id = malSearched.mal_id;
     watching.img = malSearched.img;
     watching.type = malSearched.type;
@@ -244,6 +251,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
         year: year,
         quarter: qtr
       },
+      broadcast: undefined,
       type: 'tva',
       memo: '',
       mal_id: 0,
@@ -337,10 +345,52 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
       return `${given.getMonth()+1}/${given.getDate()}`;
   }
 
+  getDay(aired: string): string {
+    let date = new Date(aired);
+    return this.days[date.getDay()];
+  }
+
   getSize(size: number): string {
     const dividedSize = Math.round(size / 1024 / 1024);
     if ( dividedSize >= 1000 ) return (dividedSize / 1024).toFixed(2) + 'GB';
     else return dividedSize + 'MB';
+  }
+
+  findByStudio(studio: string) {
+    this.dialog.open(StudioDialogComponent, {data: studio});
+  }
+
+  openTodayAiring() {
+    this.closeAll();
+    const today = new Date();
+    const broadcast: Broadcast = {
+      day: today.getDay(),
+      hour: today.getHours(),
+      minute: today.getMinutes()
+    };
+    let flag: boolean = false;
+    for (let airing of this.airings) {
+      if ( !airing.broadcast ) continue;
+      else if ( broadcast.day == airing.broadcast.day ) {
+        if ( broadcast.hour > airing.broadcast.hour || (broadcast.hour == airing.broadcast.hour && broadcast.minute >= airing.broadcast.minute) ) {
+          this.click(airing._id);
+          flag = true;
+        }
+      } else if ( (broadcast.day + 6) % 7 == airing.broadcast.day ) {
+        if ( broadcast.hour < airing.broadcast.hour || (broadcast.hour == airing.broadcast.hour && broadcast.minute <= airing.broadcast.minute ) ) {
+          this.click(airing._id);
+          flag = true;
+        }
+      }
+    }
+
+    if ( !flag ) {
+      this.flashMessage.showFlashMessage({
+        messages: [`24시간 이내 방영 항목이 없습니다.`],
+        type: 'danger',
+        timeout: 3000
+      });
+    }
   }
 
 }

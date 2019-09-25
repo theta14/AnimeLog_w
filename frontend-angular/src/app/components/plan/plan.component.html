@@ -32,7 +32,9 @@
           </td>
           <td colspan="120" *ngIf="item.studios.length == 0">-</td>
           <ng-container *ngIf="item.studios.length > 0">
-            <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+            <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">
+              <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+            </td>
           </ng-container>
           <td>{{getQuarterFromAiredDate(item.aired)}}</td>
         </tr>
@@ -92,7 +94,9 @@
               </tr>
               <tr *ngFor="let studio of item.studios; index as j">
                 <th *ngIf="j == 0" [attr.rowspan]="item.studios.length" style="vertical-align: middle;">제작사</th>
-                <td>{{studio}}</td>
+                <td>
+                  <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+                </td>
               </tr>
               <tr>
                 <th>메모</th>

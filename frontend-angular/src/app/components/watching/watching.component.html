@@ -3,10 +3,11 @@
     <h4>시청 중</h4>
     <p>방영 중인 항목 수: {{airings?.length}}</p>
     <p>완결작 수: {{ends?.length}}</p>
-    <p>
+    <p class="info-button-area">
       <button mat-flat-button (click)="openAll()">전체 열기</button>&nbsp;
       <button mat-flat-button (click)="closeAll()">전체 닫기</button>&nbsp;
-      <button mat-flat-button (click)="write(); writingArea.scrollIntoView()">새 항목 작성</button>
+      <button mat-flat-button (click)="write(); writingArea.scrollIntoView()">새 항목 작성</button>&nbsp;
+      <button mat-flat-button (click)="openTodayAiring()" title="오늘이라고 적었긴 한데 그냥 24시간 이내 방영작임">오늘 방영작 펼치기</button>
     </p>
   </div>
 </section>
@@ -21,6 +22,7 @@
         <th (click)="align(0, 1)">제목</th>
         <th (click)="align(0, 2)" colspan="120">제작사</th>
         <th (click)="align(0, 3)">방영분기</th>
+        <th (click)="align(0, 4)">방영요일</th>
       </tr>
     </thead>
     <tbody>
@@ -32,8 +34,11 @@
           <td>
             <span class="clickable" (click)="click(item._id)">{{item.title[item.title.rv]}}</span>
           </td>
-          <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+          <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">
+            <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+          </td>
           <td>'{{item.premiered.year.toString().substring(2)}} - {{item.premiered.quarter}}</td>
+          <td>{{getDay(item.aired)}}</td>
         </tr>
         <tr *ngIf="item.opened">
           <td colspan="123" style="padding: 0px;">
@@ -89,7 +94,9 @@
               </tr>
               <tr *ngFor="let studio of item.studios; index as j">
                 <th *ngIf="j == 0" [attr.rowspan]="item.studios.length" style="vertical-align: middle;">제작사</th>
-                <td>{{studio}}</td>
+                <td>
+                  <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+                </td>
               </tr>
               <tr>
                 <th>메모</th>
@@ -105,7 +112,7 @@
               </tr>
               <tr><td colspan="3">오늘: {{getToday()}}</td></tr>
               <tr>
-                <td colspan="3" class="inner-table-section">
+                <td colspan="3" class="inner-table-section" *ngIf="!item.videos || (item.videos && item.videos.length > 0)">
 
                   <mat-progress-bar *ngIf="!item.videos" mode="indeterminate"></mat-progress-bar>
                   <table class="table table-dark" *ngIf="item.videos">
@@ -122,10 +129,10 @@
                 </td>
               </tr>
 
-              <tr><td colspan="3"></td></tr>
+              <tr *ngIf="!item.videos || (item.videos && item.videos.length > 0)"><td colspan="3"></td></tr>
 
               <tr>
-                <td colspan="3" class="inner-table-section">
+                <td colspan="3" class="inner-table-section" *ngIf="!item.ohys || (item.ohys && item.ohys.length > 0)">
 
                   <mat-progress-bar *ngIf="!item.ohys" mode="indeterminate"></mat-progress-bar>
                   <table class="table table-dark" *ngIf="item.ohys">
@@ -140,10 +147,10 @@
                 </td>
               </tr>
 
-              <tr><td colspan="3"></td></tr>
+              <tr *ngIf="!item.ohys || (item.ohys && item.ohys.length > 0)"><td colspan="3"></td></tr>
 
               <tr>
-                <td colspan="3" class="inner-table-section">
+                <td colspan="3" class="inner-table-section" *ngIf="!item.subtitles || (item.subtitles && item.subtitles.length > 0)">
 
                   <mat-progress-bar *ngIf="!item.subtitles" mode="indeterminate"></mat-progress-bar>
                   <table class="table table-dark" *ngIf="item.subtitles">
@@ -317,7 +324,9 @@
           <td>
             <span class="clickable" (click)="click(item._id)">{{item.title[item.title.rv]}}</span>
           </td>
-          <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+          <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">
+            <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+          </td>
           <td>'{{item.premiered.year.toString().substring(2)}} - {{item.premiered.quarter}}</td>
         </tr>
         <tr *ngIf="item.opened">
@@ -374,7 +383,9 @@
               </tr>
               <tr *ngFor="let studio of item.studios; index as j">
                 <th *ngIf="j == 0" [attr.rowspan]="item.studios.length" style="vertical-align: middle;">제작사</th>
-                <td>{{studio}}</td>
+                <td>
+                  <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+                </td>
               </tr>
               <tr>
                 <th>메모</th>

@@ -17,6 +17,7 @@ import { PlanService } from 'src/app/services/plan.service';
 import { HeaderAlign } from 'src/app/models/headerAlign';
 import { SendingTextProtocol, TextFieldDialogComponent } from '../dialogs/text-field-dialog/text-field-dialog.component';
 import { TitleService } from 'src/app/services/title.service';
+import { StudioDialogComponent } from '../dialogs/studio-dialog/studio-dialog.component';
 
 @Component({
   selector: 'app-tva',
@@ -200,7 +201,7 @@ export class TvaComponent extends HeaderAlign<Tva> implements OnInit {
   editCategory(t: number) {
     const data: SendingTextProtocol = {
       title: '카테고리명 수정',
-      explan: '수정할 카테고리명을 입력해주세요.',
+      explain: '수정할 카테고리명을 입력해주세요.',
       placeholder: '카테고리명',
       text: this.tvas[t].category
     }
@@ -610,6 +611,16 @@ export class TvaComponent extends HeaderAlign<Tva> implements OnInit {
       return count;
     }
     return 0;
+  }
+
+  findByStudio(studio: string) {
+    this.dialog.open(StudioDialogComponent, {data: studio});
+  }
+
+  toCategory(rv: string) {
+    const s: string = this.writingTva.title[rv];
+    this.categoryControl.setValue(s);
+    this.writeFormGroup.get('writeSeriesControl').setValue(s);
   }
 
 }

@@ -126,7 +126,9 @@
               <a [routerLink]="['/tva', tva._id, tva.series, tva.sequence]" class="searched-link">{{tva.title[tva.title.rv]}}</a>
             </td>
             <td>{{tva.season}}</td>
-            <td *ngFor="let studio of tva.studios" [attr.colspan]="120 / tva.studios.length">{{studio}}</td>
+            <td *ngFor="let studio of tva.studios" [attr.colspan]="120 / tva.studios.length">
+              <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+            </td>
             <td>{{tva.episodes}}</td>
             <td>'{{tva.premiered.year.toString().substring(2)}} - {{tva.premiered.quarter}}</td>
           </tr>
@@ -159,7 +161,9 @@
               <a [routerLink]="['/movie', movie._id, movie.series, movie.sequence]" class="searched-link">{{movie.title[movie.title.rv]}}</a>
             </td>
             <td>{{movie.order}}</td>
-            <td *ngFor="let studio of movie.studios" [attr.colspan]="120 / movie.studios.length">{{studio}}</td>
+            <td *ngFor="let studio of movie.studios" [attr.colspan]="120 / movie.studios.length">
+              <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+            </td>
             <td>{{movie.aired}}</td>
           </tr>
         </ng-container>
@@ -193,7 +197,9 @@
             <td>
               <a [routerLink]="['/watching', item._id]" class="searched-link">{{item.title[item.title.rv]}}</a>
             </td>
-            <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+            <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">
+              <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+            </td>
             <td>'{{item.premiered.year.toString().substring(2)}} - {{item.premiered.quarter}}</td>
           </tr>
         </ng-container>
@@ -226,7 +232,9 @@
             </td>
             <td colspan="120" *ngIf="item.studios.length == 0">-</td>
             <ng-container *ngIf="item.studios.length > 0">
-              <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">{{studio}}</td>
+              <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">
+                <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+              </td>
             </ng-container>
             <td>{{getQuarterFromAiredDate(item.aired)}}</td>
           </tr>

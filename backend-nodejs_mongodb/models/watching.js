@@ -7,6 +7,7 @@ const WatchingSchema = mongoose.Schema({
   mal_id: Number,
   ohli_id: Number,
   premiered: Object,
+  broadcast: Object,
   aired: String,  // the first aired date
   img: String,
   studios: Array

@@ -45,7 +45,9 @@
               <ng-template #orderTemplate>
                 <td>{{sequence.order}}</td>
               </ng-template>
-              <td *ngFor="let studio of sequence.studios" [attr.colspan]="120 / sequence.studios.length">{{studio}}</td>
+              <td *ngFor="let studio of sequence.studios" [attr.colspan]="120 / sequence.studios.length">
+                <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+              </td>
               <td>{{sequence.aired}}</td>
             </tr>
             <tr *ngIf="movie.opened && i == movie.series.length-1 && j == series.sequences.length-1">
@@ -118,7 +120,9 @@
                   <tr *ngFor="let studio of movie.series[movie.opened.series].sequences[movie.opened.sequence].studios; index as s">
                     <th *ngIf="s == 0" style="vertical-align: middle;"
                       [attr.rowspan]="movie.series[movie.opened.series].sequences[movie.opened.sequence].studios.length">제작사</th>
-                    <td>{{studio}}</td>
+                    <td>
+                      <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
+                    </td>
                   </tr>
                   <tr>
                     <th>메모</th>

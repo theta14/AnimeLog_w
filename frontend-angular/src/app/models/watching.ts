@@ -1,10 +1,12 @@
 import { Incompletion } from './incompletion';
+import { Broadcast } from './searched';
 
 export class Watching extends Incompletion {
     premiered: {
         year: number,
         quarter: number
     };
+    broadcast: Broadcast;
     ohli_id?: number;
     modifying?: Watching;
     videos?: WatchingVideo[];

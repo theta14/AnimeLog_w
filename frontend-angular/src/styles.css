@@ -70,6 +70,10 @@ a.detail-link:hover {
   padding-right: 100px;
 }
 
+.info-button-area > * {
+  margin-right: 7px;
+}
+
 
 /* svg backgrounds */
 

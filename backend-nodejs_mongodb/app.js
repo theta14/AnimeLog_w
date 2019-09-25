@@ -34,7 +34,8 @@ routing([
   'movies',
   'watchings',
   'plans',
-  'searches'
+  'searches',
+  'test'
 ]);
 
 // catch 404 and forward to error handler

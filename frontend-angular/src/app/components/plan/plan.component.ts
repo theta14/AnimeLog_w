@@ -7,9 +7,10 @@ import { SearchService } from 'src/app/services/search.service';
 import { Plan } from 'src/app/models/plan';
 import { MalSearched, SendingSearchedProtocol, searchedProtocolFactory } from 'src/app/models/searched';
 import { SearchDialogComponent } from '../dialogs/search-dialog/search-dialog.component';
-import { cloneObject, notOK, ItemTitle, isOK } from 'src/app/models/item';
+import { cloneObject, notOK, isOK } from 'src/app/models/item';
 import { HeaderAlign } from 'src/app/models/headerAlign';
 import { TitleService } from 'src/app/services/title.service';
+import { StudioDialogComponent } from '../dialogs/studio-dialog/studio-dialog.component';
 
 @Component({
   selector: 'app-plan',
@@ -53,7 +54,7 @@ export class PlanComponent extends HeaderAlign<Plan> implements OnInit {
       try {
         element.scrollIntoView();
       } catch(e) {
-        alert('알 수 없는 에러가 발생하였습니다.\n' + e);
+        alert('잘못된 ID값입니다: ' + _id);
       }
     }
   }
@@ -78,6 +79,7 @@ export class PlanComponent extends HeaderAlign<Plan> implements OnInit {
 
   click(_id: string) {
     let plan: Plan = this.planMap.get(_id);
+    if ( !plan ) return;
     if ( plan.modifying ) return;
     plan.opened = !plan.opened;
   }
@@ -254,7 +256,11 @@ export class PlanComponent extends HeaderAlign<Plan> implements OnInit {
   closeAll() {
     this.planMap.forEach((value, key) => {
       if ( value.opened ) this.click(key);
-    })
+    });
+  }
+
+  findByStudio(studio: string) {
+    this.dialog.open(StudioDialogComponent, {data: studio});
   }
 
 }

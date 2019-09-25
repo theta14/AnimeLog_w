@@ -39,10 +39,12 @@ import { TvaComponent } from './components/tva/tva.component';
 import { MovieComponent } from './components/movie/movie.component';
 import { WatchingComponent } from './components/watching/watching.component';
 import { PlanComponent } from './components/plan/plan.component';
+import { NoPageComponent } from './components/no-page/no-page.component';
+
 import { SearchDialogComponent } from './components/dialogs/search-dialog/search-dialog.component';
 import { OhliDialogComponent } from './components/dialogs/ohli-dialog/ohli-dialog.component';
 import { TextFieldDialogComponent } from './components/dialogs/text-field-dialog/text-field-dialog.component';
-import { NoPageComponent } from './components/no-page/no-page.component';
+import { StudioDialogComponent } from './components/dialogs/studio-dialog/studio-dialog.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -74,22 +76,21 @@ const appRoutes: Routes = [
     SearchDialogComponent,
     OhliDialogComponent,
     TextFieldDialogComponent,
-    NoPageComponent
+    NoPageComponent,
+    StudioDialogComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     RouterModule.forRoot(appRoutes, {
       useHash: true,
-      onSameUrlNavigation: 'reload'
+      onSameUrlNavigation: 'reload',
+      scrollPositionRestoration: 'enabled'
     }),
     HttpClientModule,
     NgFlashMessagesModule.forRoot(),
     FormsModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot(appRoutes, {
-      scrollPositionRestoration: 'enabled'
-    }),
     ReactiveFormsModule,
 
     MatButtonModule,
@@ -125,7 +126,8 @@ const appRoutes: Routes = [
   entryComponents: [
     SearchDialogComponent,
     OhliDialogComponent,
-    TextFieldDialogComponent
+    TextFieldDialogComponent,
+    StudioDialogComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ContentTypeInterceptor, multi: true },

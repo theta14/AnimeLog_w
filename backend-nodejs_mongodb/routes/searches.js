@@ -5,11 +5,6 @@ const request = require('request');
 const cheerio = require('cheerio');
 const premiereds = require('../methods/premiereds');
 const dates = require('../methods/dates');
-// ==================================================
-const Tva = require('../models/tva');
-const Movie = require('../models/movie');
-const Watching = require('../models/watching');
-const Plan = require('../models/plan');
 
 router.get('/', function(req, res, next) {
     res.send('');
@@ -108,6 +103,22 @@ router.get('/mal/:mal_id', (req, res, next) => {
         let type = value.type.toLowerCase();
         if ( type == 'tv' ) type = 'tva';
 
+        let broadcast = null;
+        if ( value.broadcast ) {
+            let broadcasts = value.broadcast.split(' ');
+            let broadcast_time = broadcasts[2].split(':');
+            broadcast = {
+                hour: parseInt(broadcast_time[0]),
+                minute: parseInt(broadcast_time[1])
+            };
+            for (let [i, day] of ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursday', 'Fridays', 'Saturdays'].entries()) {
+                if ( day == broadcasts[0] ) {
+                    broadcast.day = i;
+                    break;
+                }
+            }
+        }
+
         res.json({
             type: type,
             title: {
@@ -118,6 +129,7 @@ router.get('/mal/:mal_id', (req, res, next) => {
                 year: year,
                 quarter: qtr
             },
+            broadcast: broadcast,
             aired: aired,
             episodes: value.episodes,
             studios: studios,

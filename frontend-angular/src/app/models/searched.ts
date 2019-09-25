@@ -25,10 +25,17 @@ export class MalSearched {
         start: string,
         end: string
     };
+    broadcast: Broadcast;
     episodes: number; // can be null when it is a movie
     studios: string[];
     mal_id: number;
     img: string;
+}
+
+export interface Broadcast {
+    day: number,
+    hour: number,
+    minute: number
 }
   
 export interface SendingSearchedProtocol {

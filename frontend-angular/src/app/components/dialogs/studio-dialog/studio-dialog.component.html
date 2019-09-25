@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{data}}</h2>
+<div mat-dialog-content>
+  <ul *ngIf="tvas.length > 0 || movies.length > 0">
+    <li *ngIf="tvas.length > 0">TVA ({{tvas.length}})
+      <ul>
+        <li *ngFor="let item of tvas; index as i">
+          <hr *ngIf="yearChanged(i)">
+          <a [routerLink]="getLink('tva', item)" target="_blank">
+            {{item.title[item.title.rv]}} <span style="font-size: 80%;">({{getFormattedDate(item.date)}})</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <br *ngIf="movies.length > 0">
+    <li *ngIf="movies.length > 0">극장판 ({{movies.length}})
+      <ul>
+        <li *ngFor="let item of movies">
+          <a [routerLink]="getLink('movie', item)" target="_blank">
+            {{item.title[item.title.rv]}} <span style="font-size: 80%;">({{getFormattedDate(item.date)}})</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <p *ngIf="tvas.length == 0 && movies.length == 0">시청 항목이 존재하지 않습니다.</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button tabindex="-1" (click)="onClose()">닫기</button>
+</div>

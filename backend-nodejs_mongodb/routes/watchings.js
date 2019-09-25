@@ -37,6 +37,7 @@ router.post('/', async (req, res, next) => {
         mal_id: req.body.mal_id,
         ohli_id: req.body.ohli_id,
         premiered: req.body.premiered,
+        broadcast: req.body.broadcast,
         aired: req.body.aired,
         img: req.body.img,
         studios: req.body.studios
@@ -116,7 +117,8 @@ router.get('/airing/ohys/:title', (req, res, next) => {
         if ( !body ) return res.json([]);
         const json = JSON.parse(body.trim());
         let result = [];
-        for (let data of json) {
+        for (let [i, data] of json.entries()) {
+            if ( i == 5 ) break;
             result.push({
                 name: data.t,
                 link: 'http://torrents.ohys.net/t/' + data.a
