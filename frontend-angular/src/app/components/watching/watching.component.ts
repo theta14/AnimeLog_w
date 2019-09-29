@@ -32,7 +32,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
   plan_id: string = null;
 
   private readonly days: string[] = [
-    '일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'
+    '일', '월', '화', '수', '목', '금', '토'
   ];
 
   constructor(
@@ -270,11 +270,9 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
         this.watchingMap.set(result._id, result);
         if ( result.ohli_id ) {
           this.airings.push(result);
-          // this.airings.sort((a, b) => { return a.title[a.title.rv].localeCompare(b.title[b.title.rv]) });
           this.align(0);
         } else {
           this.ends.push(result);
-          // this.ends.sort((a, b) => { return a.title[a.title.rv].localeCompare(b.title[b.title.rv]) });
           this.align(1);
         }
         alert('추가되었습니다.');
@@ -345,9 +343,9 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
       return `${given.getMonth()+1}/${given.getDate()}`;
   }
 
-  getDay(aired: string): string {
-    let date = new Date(aired);
-    return this.days[date.getDay()];
+  getDay(broadcast: Broadcast): string {
+    const f = (n: number): string => { return n >= 10 ? `${n}` : `0${n}` };
+    return `${this.days[broadcast.day]} ${f(broadcast.hour)}:${f(broadcast.minute)}`;
   }
 
   getSize(size: number): string {

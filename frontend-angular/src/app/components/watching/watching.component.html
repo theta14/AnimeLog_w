@@ -38,7 +38,7 @@
             <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
           </td>
           <td>'{{item.premiered.year.toString().substring(2)}} - {{item.premiered.quarter}}</td>
-          <td>{{getDay(item.aired)}}</td>
+          <td>{{getDay(item.broadcast)}}</td>
         </tr>
         <tr *ngIf="item.opened">
           <td colspan="123" style="padding: 0px;">
