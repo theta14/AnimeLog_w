@@ -21,7 +21,6 @@
         <th (click)="align(0, 0)">타입</th>
         <th (click)="align(0, 1)">제목</th>
         <th (click)="align(0, 2)" colspan="120">제작사</th>
-        <th (click)="align(0, 3)">방영분기</th>
         <th (click)="align(0, 4)">방영요일</th>
       </tr>
     </thead>
@@ -37,7 +36,6 @@
           <td *ngFor="let studio of item.studios" [attr.colspan]="120 / item.studios.length">
             <span class="clickable" (click)="findByStudio(studio)">{{studio}}</span>
           </td>
-          <td>'{{item.premiered.year.toString().substring(2)}} - {{item.premiered.quarter}}</td>
           <td>{{getDay(item.broadcast)}}</td>
         </tr>
         <tr *ngIf="item.opened">
@@ -166,13 +164,16 @@
               </tr>
               <tr>
                 <td colspan="3" style="text-align: center;">
-                  <button mat-button (click)="modify(item._id)">
+                  <a mat-button [href]="searchService.namuwiki(item.title[item.title.rv])" target="_blank" [matTooltip]="searchService.namuwiki_label()" class="no-hover-link">
+                    <mat-icon>{{searchService.namuwiki_icon()}}</mat-icon>
+                  </a>
+                  <button mat-button (click)="modify(item._id)" matTooltip="수정">
                     <mat-icon>create</mat-icon>
                   </button>
-                  <a mat-button class="no-hover-link" [routerLink]="['/', watchingMap.get(item._id).type, 'data-from-watching', item._id]">
+                  <a mat-button class="no-hover-link" [routerLink]="['/', watchingMap.get(item._id).type, 'data-from-watching', item._id]" matTooltip="시청 완료">
                     <mat-icon>input</mat-icon>
                   </a>
-                  <button mat-button (click)="remove(item._id, i, true)">
+                  <button mat-button (click)="remove(item._id, i, true)" matTooltip="삭제">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>
@@ -394,20 +395,26 @@
               <tr>
                 <th>MyAnimeList</th>
                 <td>
-                  <a [href]="'https://myanimelist.net/anime/' + item.mal_id" target="_blank">
+                  <a [href]="'https://myanimelist.net/anime/' + item.mal_id" target="_blank" class="detail-link">
                     {{item.mal_id}}
                   </a>
                 </td>
               </tr>
               <tr>
                 <td colspan="2" style="text-align: center;">
-                  <button mat-button (click)="modify(item._id)">
+                  <a mat-button [href]="searchService.namuwiki(item.title[item.title.rv])" target="_blank" [matTooltip]="searchService.namuwiki_label()" class="no-hover-link">
+                    <mat-icon>{{searchService.namuwiki_icon()}}</mat-icon>
+                  </a>
+                  <button mat-button (click)="findVideosAndSubtitles(item)" matTooltip="영상/자막 찾기">
+                    <mat-icon>find_in_page</mat-icon>
+                  </button>
+                  <button mat-button (click)="modify(item._id)" matTooltip="수정">
                     <mat-icon>create</mat-icon>
                   </button>
-                  <a mat-button class="no-hover-link" [routerLink]="['/', watchingMap.get(item._id).type, 'data-from-watching', item._id]">
+                  <a mat-button class="no-hover-link" [routerLink]="['/', watchingMap.get(item._id).type, 'data-from-watching', item._id]" matTooltip="시청 완료">
                     <mat-icon>input</mat-icon>
                   </a>
-                  <button mat-button (click)="remove(item._id, i, false)">
+                  <button mat-button (click)="remove(item._id, i, false)" matTooltip="삭제">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>

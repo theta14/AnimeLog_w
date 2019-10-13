@@ -1,22 +1,41 @@
 const express = require('express');
 const router = express.Router();
-const Mal = require('node-myanimelist').Mal;
+const request = require('request');
+const cheerio = require('cheerio');
 
-router.get('/:mal_id', async (req, res, next) => {
+const request_promise = (url) => {
+    return new Promise((resolve, reject) => {
+        request(url, (error, response, body) => {
+            if ( error ) reject(error);
+            else resolve(body);
+        });
+    });
+}
+
+router.get('/:text', async (req, res, next) => {
     res.send();
-    let value = await Mal.anime(req.params.mal_id);
-    console.log(value);
-    // let arr = value.broadcast.split(' ');
-    // let broadcast = {
-    //     time: arr[2]
-    // };
-    // for (let [i, day] of ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursday', 'Fridays', 'Saturdays'].entries()) {
-    //     if ( day == arr[0] ) {
-    //         broadcast.day = i;
-    //         break;
-    //     }
-    // }
-    // console.log(broadcast);
+    const text = req.params.text;
+    const url = 'https://namu.wiki/search/' + encodeURI(text);
+    try {
+        const body = await request_promise(url);
+        const $ = cheerio.load(body);
+        const a = $('#__layout > div > div:nth-child(2) > article > div > section > div:nth-child(1) > h4 > a');
+        let href;
+        if ( href = a.attr('href') ) {
+            href = href.substring(3);
+            if ( text == decodeURI(href) ) {
+                console.log('same text - able to go to the page');
+            } else {
+                console.log('have to go to the search page');
+            }
+
+        } else {
+            console.log('nothing has been searched');
+        }
+
+    } catch(e) {
+        console.log(e);
+    }
 });
 
 module.exports = router;

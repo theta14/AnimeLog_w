@@ -138,10 +138,13 @@
                   </tr>
                   <tr>
                     <td colspan="2" style="text-align: center;">
-                      <button mat-button (click)="modifyMovie(m, movie.opened.series, movie.opened.sequence)">
+                      <a mat-button [href]="searchService.namuwiki(movie?.opened?.linked?.title)" target="_blank" [matTooltip]="searchService.namuwiki_label()" class="no-hover-link">
+                        <mat-icon>{{searchService.namuwiki_icon()}}</mat-icon>
+                      </a>
+                      <button mat-button (click)="modifyMovie(m, movie.opened.series, movie.opened.sequence)" matTooltip="수정">
                         <mat-icon>create</mat-icon>
                       </button>
-                      <button mat-button (click)="removeMovie(m, movie.opened.series, movie.opened.sequence)">
+                      <button mat-button (click)="removeMovie(m, movie.opened.series, movie.opened.sequence)" matTooltip="삭제">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </td>

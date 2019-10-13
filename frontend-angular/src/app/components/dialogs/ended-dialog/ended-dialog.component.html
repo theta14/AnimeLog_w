@@ -1,0 +1,85 @@
+<h2 mat-dialog-title>{{data.title[data.title.rv]}}</h2>
+<div mat-dialog-content *ngIf="!year">
+  <mat-spinner></mat-spinner><br>
+  필요한 정보를 불러오는 중...
+</div>
+<div mat-dialog-content *ngIf="year">
+
+  <div class="container">
+    <table class="table table-borderless" style="width: 65%; margin: auto;">
+      <tr>
+        <td style="text-align: center;">
+          <img [src]="data.img">
+        </td>
+        <td style="text-align: center; vertical-align: middle;">
+          <button mat-stroked-button (click)="findOhliId()">자막 찾기</button><br><br>
+          <a mat-stroked-button [href]="'https://www.google.com/search?q=' + data.title.kor + ' 토렌트'" target="_blank" class="btn-link">구글 검색</a>
+        </td>
+      </tr>
+    </table>
+
+    <br>
+  
+    <table class="table">
+      <caption>Nyaa</caption>
+      <tr *ngIf="!videos">
+        <td colspan="4">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </td>
+      </tr>
+      <ng-container *ngIf="videos">
+        <tr *ngFor="let video of videos">
+          <td>{{getDate(video.date)}}</td>
+          <td>{{video.name}}</td>
+          <td>{{getSize(video.size)}}</td>
+          <td>
+            <a [href]="video.magnet | safeUrl" class="download-link">▶</a>
+          </td>
+        </tr>
+      </ng-container>
+    </table>
+  
+    <hr><br>
+  
+    <table class="table">
+      <caption>Ohys</caption>
+      <tr *ngIf="!ohyses">
+        <td colspan="2">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </td>
+      </tr>
+      <ng-container *ngIf="ohyses">
+        <tr *ngFor="let ohys of ohyses">
+          <td>{{ohys.name}}</td>
+          <td>
+            <a [href]="ohys.link" class="download-link" download>▶</a>
+          </td>
+        </tr>
+      </ng-container>
+    </table>
+  
+    <hr><br>
+  
+    <table class="table">
+      <caption>OHLI</caption>
+      <tr *ngIf="!subtitles">
+        <td colspan="4">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </td>
+      </tr>
+      <ng-container *ngIf="subtitles">
+        <tr *ngFor="let subtitle of subtitles">
+          <td>{{getDate(subtitle.date)}}</td>
+          <td>제{{subtitle.episode}}화</td>
+          <td>{{subtitle.by}}</td>
+          <td><a class="download-link" [href]="subtitle.link" target="_blank">페이지로 이동</a></td>
+        </tr>
+      </ng-container>
+    </table>
+
+  </div>
+
+</div>
+<div mat-dialog-actions>
+  <button mat-button tabindex="-1" (click)="onClose()">닫기</button>
+</div>

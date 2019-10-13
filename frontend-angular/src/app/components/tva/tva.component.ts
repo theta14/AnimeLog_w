@@ -52,6 +52,11 @@ export class TvaComponent extends HeaderAlign<Tva> implements OnInit {
   from: string = undefined;
   incompletion_id: string = undefined;
 
+  counts = {
+    sequences: 0,
+    episodes: 0
+  };
+
   constructor(
     private tvaService: TvaService,
     private movieService: MovieService,
@@ -70,6 +75,7 @@ export class TvaComponent extends HeaderAlign<Tva> implements OnInit {
       super.setItems([this.tvas]);
       this.tvaMap = new Map<string, Tva>();
       tvas.map(v => this.tvaMap.set(v._id, v));
+      this.count();
       this.align();
       setTimeout(() => this.scrollToElement(), 500); // to wait for page loading
     });
@@ -600,17 +606,15 @@ export class TvaComponent extends HeaderAlign<Tva> implements OnInit {
     }
   }
 
-  count(): number {
+  count() {
     if ( this.tvas ) {
-      let count = 0;
-      for (let movie of this.tvas) {
-        for (let series of movie.series) {
-          count += series.sequences.length;
-        }
-      }
-      return count;
+      this.tvas.map(tva => {
+        tva.series.map(series => {
+          this.counts.sequences += series.sequences.length;
+          series.sequences.map(sequence => this.counts.episodes += sequence.episodes);
+        });
+      });
     }
-    return 0;
   }
 
   findByStudio(studio: string) {

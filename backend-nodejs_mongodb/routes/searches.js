@@ -1,62 +1,65 @@
 var express = require('express');
 var router = express.Router();
 const Mal = require('node-myanimelist').Mal;
-const request = require('request');
 const cheerio = require('cheerio');
 const premiereds = require('../methods/premiereds');
 const dates = require('../methods/dates');
+const parses = require('../methods/parses');
 
 router.get('/', function(req, res, next) {
     res.send('');
 });
 
-router.get('/onnada', (req, res, next) => {
-    const url = 'http://onnada.com/search/?t=anime&q=' + encodeURI(req.query.text);
-    request(url, (error, response, body) => {
+router.get('/onnada/:text', async (req, res, next) => {
+    const st = setTimeout(() => {
+        return res.json([]);
+    }, 12000);  // if there is no response after 12 seconds, just return an empty array
+
+    try {
+        const url = 'http://onnada.com/search/?t=anime&q=' + req.params.text;
+        const body = await parses.request_promise(url);
         const $ = cheerio.load(body);
-        let li = $('.list');
-        let arr = [];
-    
-        new Promise((resolve, reject) => {
-            for (let i=0; i<li.length; i++) {
-                const el = li[i].firstChild.next.children[2];
-                Mal.search('anime', {
-                    q: el.children[3].children[0].children[0].data.substr(5),
-                    limit: 3
-                })
-                .then(value => {
-                    outerLoop: for (let result of value.results) {
-                        for (let each of arr) if ( result.mal_id == each.mal_id ) continue outerLoop;
-                        let date = new Date(result.start_date);
-                        arr.push({
-                            type: result.type,
-                            title: result.title,
-                            title_kor: el.children[1].children[0].children[0].data,
-                            mal_id: result.mal_id,
-                            img: result.image_url,
-                            premiered: {
-                                year: date.getFullYear(),
-                                quarter: premiereds.getPremieredQuarterFromMonth(date.getMonth() + 1)
-                            }
-                        });
-                        if ( i == li.length - 1 ) resolve();
+        const li = $('.list');
+        const arr = [];
+        for (let i=0; i<li.length; i++) {
+            const el = li[i].firstChild.next.children[2];
+            const value = await Mal.search('anime', {
+                q: el.children[3].children[0].children[0].data.substr(5),
+                limit: 3
+            });
+            outerLoop: for (let [j, result] of value.results.entries()) {
+                for (let each of arr) if ( result.mal_id == each.mal_id ) continue outerLoop;
+                let date = new Date(result.start_date);
+                arr.push({
+                    type: result.type,
+                    title: result.title,
+                    title_kor: el.children[1].children[0].children[0].data,
+                    mal_id: result.mal_id,
+                    img: result.image_url,
+                    premiered: {
+                        year: date.getFullYear(),
+                        quarter: premiereds.getPremieredQuarterFromMonth(date.getMonth() + 1)
                     }
-                })
-                .catch((err) => res.status(500).json(err));
+                });
+                if ( i == li.length - 1 && j == value.results.length - 1 ) {
+                    clearTimeout(st);
+                    return res.json(arr);
+                }
             }
-        })
-        .then(() => res.json(arr))
-        .catch((err) => res.status(500).json(err));
-    });
+        }
+    } catch(e) {
+        clearTimeout(st);
+        return res.status(500).json(e)
+    }
 });
 
-router.get('/mal', (req, res, next) => {
+router.get('/mal/:text', async (req, res, next) => {
     let arr = [];
-    Mal.search('anime', {
-        q: req.query.text,
-        limit: 10
-    })
-    .then(value => {
+    try {
+        const value = await Mal.search('anime', {
+            q: req.params.text,
+            limit: 10
+        });
         for (let result of value.results) {
             let date = new Date(result.start_date);
             arr.push({
@@ -71,19 +74,20 @@ router.get('/mal', (req, res, next) => {
             });
         }
         res.json(arr);
-    })
-    .catch((err) => res.status(500).json(err));
+
+    } catch(e) { res.status(500).json(e) }
 });
 
-router.get('/mal/:mal_id', (req, res, next) => {
-    Mal.anime(req.params.mal_id).then(value => {
+router.get('/mal_id/:mal_id', async (req, res, next) => {
+    try {
+        const value = await Mal.anime(req.params.mal_id);
         let premiered, year, qtr;
         try {
             premiered = value.premiered.split(' ');
             year = parseInt(premiered[1]);
             qtr = premiereds.getPremieredQuarterFromSeason(premiered[0]);
 
-        } catch(err) {
+        } catch(e) {
             let from = new Date(value.aired.from);
             year = from.getFullYear();
             qtr = premiereds.getPremieredQuarterFromMonth(from.getMonth() + 1);
@@ -136,8 +140,27 @@ router.get('/mal/:mal_id', (req, res, next) => {
             mal_id: value.mal_id,
             img: value.image_url
         });
-    })
-    .catch((err) => res.status(500).json(err));
+    } catch(e) { res.status(500).json(e) }
+});
+
+router.get('/namuwiki/:text', async (req, res, next) => {
+    const text = req.params.text;
+    const encoded = encodeURI(text);
+    const url = 'https://namu.wiki/search/' + encoded;
+    try {
+        const body = await parses.request_promise(url);
+        const $ = cheerio.load(body);
+        const a = $('#__layout > div > div:nth-child(2) > article > div > section > div:nth-child(1) > h4 > a');
+        let href = a.attr('href');
+        if ( href ) {
+            href = href.substring(3);
+            if ( text == decodeURI(href) ) return res.redirect(`https://namu.wiki/w/${encoded}`);
+        }
+        return res.redirect(`https://namu.wiki/search/${encoded}`);
+
+    } catch(e) {
+        res.json(e);
+    }
 });
 
 module.exports = router;

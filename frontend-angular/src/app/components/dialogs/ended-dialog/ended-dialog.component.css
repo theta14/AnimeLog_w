@@ -1,0 +1,15 @@
+a {
+    color: black;
+}
+
+a:hover {
+    color: black;
+}
+
+.btn-link:hover {
+    text-decoration: none;
+}
+
+.btn-link:focus {
+    text-decoration: none;
+}

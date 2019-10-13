@@ -17,10 +17,17 @@ export class OhliDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: SendingOhliProtocol,
     private watchingService: WatchingService
   ) {
-    this.watchingService.ohli(this.data.title).subscribe(ohlis => {
-      this.ohlis = ohlis;
-      this.loading = false;
-    });
+    if ( this.data.year ) {
+      this.watchingService.ohli(this.data.title, this.data.year).subscribe(ohlis => {
+        this.ohlis = ohlis;
+        this.loading = false;
+      });
+    } else {
+      this.watchingService.ohli(this.data.title).subscribe(ohlis => {
+        this.ohlis = ohlis;
+        this.loading = false;
+      });
+    }
   }
 
   onClose() {

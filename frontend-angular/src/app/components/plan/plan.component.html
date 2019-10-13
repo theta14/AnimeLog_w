@@ -113,16 +113,19 @@
               </tr>
               <tr>
                 <td colspan="2" style="text-align: center;">
-                  <button mat-button (click)="modify(item._id)">
+                  <a mat-button [href]="searchService.namuwiki(item.title[item.title.rv])" target="_blank" [matTooltip]="searchService.namuwiki_label()" class="no-hover-link">
+                    <mat-icon>{{searchService.namuwiki_icon()}}</mat-icon>
+                  </a>
+                  <button mat-button (click)="modify(item._id)" matTooltip="수정">
                     <mat-icon>create</mat-icon>
                   </button>
-                  <a mat-button [routerLink]="['/', planMap.get(item._id).type, 'data-from-plan', item._id]" class="no-hover-link">
+                  <a mat-button [routerLink]="['/', planMap.get(item._id).type, 'data-from-plan', item._id]" class="no-hover-link" matTooltip="시청 완료 목록으로">
                     <mat-icon>input</mat-icon>
                   </a>
-                  <a mat-button [routerLink]="['/watching/data-from-plan', item._id]" class="no-hover-link">
+                  <a mat-button [routerLink]="['/watching/data-from-plan', item._id]" class="no-hover-link" matTooltip="시청 중인 목록으로">
                     <mat-icon>add_to_queue</mat-icon>
                   </a>
-                  <button mat-button (click)="remove(item._id, i, true)">
+                  <button mat-button (click)="remove(item._id, i, true)" matTooltip="삭제">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>

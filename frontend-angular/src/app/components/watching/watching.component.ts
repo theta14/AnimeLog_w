@@ -14,6 +14,7 @@ import { PlanService } from 'src/app/services/plan.service';
 import { HeaderAlign } from 'src/app/models/headerAlign';
 import { TitleService } from 'src/app/services/title.service';
 import { StudioDialogComponent } from '../dialogs/studio-dialog/studio-dialog.component';
+import { EndedDialogComponent } from '../dialogs/ended-dialog/ended-dialog.component';
 
 @Component({
   selector: 'app-watching',
@@ -44,7 +45,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
     private searchService: SearchService,
     private titleService: TitleService
   ) {
-    super([1, 1], [5, 4]);
+    super([4, 1], [5, 4]);
     this.titleService.setTitle('시청 중');
     this.watchingService.getWatchings().subscribe(watchings => {
       this.watchingMap = new Map<string, Watching>();
@@ -68,7 +69,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
       case 1: return (a: Watching, b: Watching) => { return a.title[a.title.rv].localeCompare(b.title[b.title.rv]) * this.alignments[num][standard] }
       case 2: return (a: Watching, b: Watching) => { return a.studios[0].localeCompare(b.studios[0]) * this.alignments[num][standard] }
       case 3: return (a: Watching, b: Watching) => { return (new Date(a.aired ? a.aired : null).getTime() - new Date(b.aired ? b.aired : null).getTime()) * this.alignments[num][standard] }
-      case 4: return (a: Watching, b: Watching) => { return (new Date(a.aired).getDay() - new Date(b.aired).getDay()) * this.alignments[num][standard] }
+      case 4: return (a: Watching, b: Watching) => { return ( a.broadcast.day != b.broadcast.day ? a.broadcast.day - b.broadcast.day : (a.broadcast.hour * 100 + a.broadcast.minute) - (b.broadcast.hour * 100 + b.broadcast.minute) ) * this.alignments[num][standard] }
       default: return null;
     }
   }
@@ -389,6 +390,14 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
         timeout: 3000
       });
     }
+  }
+
+  findVideosAndSubtitles(item: Watching) {
+    this.dialog.open(EndedDialogComponent, {data: {
+      title: item.title,
+      mal_id: item.mal_id,
+      img: item.img
+    }});
   }
 
 }

@@ -25,7 +25,10 @@ import {
   MatDialogModule,
   MatAutocompleteModule,
   MatCheckboxModule,
-  MatPaginatorModule
+  MatPaginatorModule,
+  MatTooltipModule,
+  MAT_TOOLTIP_DEFAULT_OPTIONS,
+  MatTooltipDefaultOptions
 } from '@angular/material';
 
 import { TvaService } from './services/tva.service';
@@ -45,6 +48,7 @@ import { SearchDialogComponent } from './components/dialogs/search-dialog/search
 import { OhliDialogComponent } from './components/dialogs/ohli-dialog/ohli-dialog.component';
 import { TextFieldDialogComponent } from './components/dialogs/text-field-dialog/text-field-dialog.component';
 import { StudioDialogComponent } from './components/dialogs/studio-dialog/studio-dialog.component';
+import { EndedDialogComponent } from './components/dialogs/ended-dialog/ended-dialog.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -77,7 +81,8 @@ const appRoutes: Routes = [
     OhliDialogComponent,
     TextFieldDialogComponent,
     NoPageComponent,
-    StudioDialogComponent
+    StudioDialogComponent,
+    EndedDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -105,7 +110,8 @@ const appRoutes: Routes = [
     MatDialogModule,
     MatAutocompleteModule,
     MatCheckboxModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatTooltipModule
   ],
   exports: [
     RouterModule,
@@ -121,17 +127,20 @@ const appRoutes: Routes = [
     MatDialogModule,
     MatAutocompleteModule,
     MatCheckboxModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatTooltipModule
   ],
   entryComponents: [
     SearchDialogComponent,
     OhliDialogComponent,
     TextFieldDialogComponent,
-    StudioDialogComponent
+    StudioDialogComponent,
+    EndedDialogComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ContentTypeInterceptor, multi: true },
     // { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false} },
+    { provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: {position: 'above'} },
     TvaService,
     MovieService,
     WatchingService,

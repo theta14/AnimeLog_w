@@ -7,5 +7,6 @@ export class Ohli {
 
 export interface SendingOhliProtocol {
     title: string,
-    ohli_id: number
+    ohli_id: number,
+    year?: number
 }

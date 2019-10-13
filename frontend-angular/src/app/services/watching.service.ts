@@ -37,8 +37,11 @@ export class WatchingService implements IncompletionService {
     return this.http.delete(`/api/watchings/${_id}`).pipe();
   }
 
-  ohli(title: string): Observable<Ohli[]> {
-    return this.http.get<Ohli[]>(`/api/watchings/ohlis/${title}`).pipe();
+  /**
+   * @param year year when the animation ended, it is not needed when it is being aired
+   */
+  ohli(title: string, year?: number): Observable<Ohli[]> {
+    return this.http.get<Ohli[]>(year ? `/api/watchings/ohlis/${year}/${title}` : `/api/watchings/ohlis/airing/${title}`).pipe();
   }
 
   getVideos(title: string): Observable<WatchingVideo[]> {

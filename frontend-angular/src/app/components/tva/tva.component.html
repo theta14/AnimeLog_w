@@ -2,7 +2,9 @@
   <div class="border border-secondary info-area">
     <h4>TVA</h4>
     <p>카테고리 수: {{tvas?.length}}</p>
-    <p>TVA 수: {{count()}}</p>
+    <!-- <p>TVA 수: {{count()}}</p> -->
+    <p>TVA 수: {{counts.sequences}}</p>
+    <p>에피소드 수: {{counts.episodes}}</p>
     <p>
       <button mat-flat-button (click)="openAll()">전체 열기</button>&nbsp;
       <button mat-flat-button (click)="closeAll()">전체 닫기</button>&nbsp;
@@ -153,10 +155,13 @@
                     </tr>
                     <tr>
                       <td colspan="2" style="text-align: center;">
-                        <button mat-button (click)="modifyTva(t, tva.opened.series, tva.opened.sequence)">
+                        <a mat-button [href]="searchService.namuwiki(tva.series[tva.opened.series].title)" target="_blank" [matTooltip]="searchService.namuwiki_label()" class="no-hover-link">
+                          <mat-icon>{{searchService.namuwiki_icon()}}</mat-icon>
+                        </a>
+                        <button mat-button (click)="modifyTva(t, tva.opened.series, tva.opened.sequence)" matTooltip="수정">
                           <mat-icon>create</mat-icon>
                         </button>
-                        <button mat-button (click)="removeTva(t, tva.opened.series, tva.opened.sequence)">
+                        <button mat-button (click)="removeTva(t, tva.opened.series, tva.opened.sequence)" matTooltip="삭제">
                           <mat-icon>delete</mat-icon>
                         </button>
                       </td>

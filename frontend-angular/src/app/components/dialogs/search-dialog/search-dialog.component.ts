@@ -21,7 +21,7 @@ export class SearchDialogComponent {
       this.searches = searches;
       this.loading = false;
     }, err => {
-      alert('검색 도중 에러가 발생하였습니다.\n' + err);
+      alert('검색 도중 에러가 발생하였습니다.\n' + err.name + '\n' + err.statusText);
     });
   }
 
@@ -37,6 +37,11 @@ export class SearchDialogComponent {
       this.loading = false;
       this.onClose();
     });
+  }
+
+  getLink(): string {
+    if ( this.data.search.option == 'onnada' ) return 'http://onnada.com/search/?t=anime&q=' + encodeURI(this.data.search.text);
+    else 'https://myanimelist.net/search/all?q=' + encodeURI(this.data.search.text);
   }
 
 }
