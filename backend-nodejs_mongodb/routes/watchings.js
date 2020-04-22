@@ -122,9 +122,11 @@ router.get('/airing/ohys/:title', async (req, res, next) => {
     let result = [];
     for (let [i, data] of json.entries()) {
         if ( i == 5 ) break;
+        const link = 'http://torrents.ohys.net/t/' + data.a;
         result.push({
             name: data.t,
-            link: 'http://torrents.ohys.net/t/' + data.a
+            link: link,
+            magnet: await parses.getMagnetLink(link)
         });
     }
     res.json(result);
@@ -142,7 +144,7 @@ router.get('/airing/subtitles/:ohli_id', async (req, res, next) => {
         result.push({
             date: d1 + d2,
             by: data.n,
-            link: 'http://' + data.a,
+            link: data.a,
             episode: data.s
         });
     }

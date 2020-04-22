@@ -23,7 +23,8 @@ export interface WatchingVideo {
 
 export interface Ohys {
     name: string,
-    link: string
+    link: string,
+    magnet: string
 }
 
 export interface WatchingSubtitle {

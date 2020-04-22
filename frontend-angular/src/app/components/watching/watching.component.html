@@ -137,7 +137,10 @@
                     <tr *ngFor="let ohys of item.ohys">
                       <td>{{ohys.name}}</td>
                       <td>
-                        <a [href]="ohys.link" class="download-link" download>▶</a>
+                        <a [href]="ohys.link" class="download-link" download>@</a>
+                      </td>
+                      <td>
+                        <a [href]="ohys.magnet | safeUrl" class="download-link">▶</a>
                       </td>
                     </tr>
                   </table>
