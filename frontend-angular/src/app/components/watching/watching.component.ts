@@ -110,7 +110,7 @@ export class WatchingComponent extends HeaderAlign<Watching> implements OnInit {
       watching.opened = true;
       if ( watching.ohli_id ) {
         this.watchingService.getVideos(watching.title.eng).subscribe(videos => watching.videos = videos);
-        this.watchingService.getOhys(watching.title.eng).subscribe(ohys => {watching.ohys = ohys; console.log(ohys)});
+        this.watchingService.getOhys(watching.title.eng).subscribe(ohys => watching.ohys = ohys);
         this.watchingService.getSubtitles(watching.ohli_id).subscribe(subtitles => watching.subtitles = subtitles);
       }
     }
