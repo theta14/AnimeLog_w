@@ -15,7 +15,7 @@
     "mongoose": "^5.6.2",
     "morgan": "~1.9.1",
     "node-myanimelist": "^1.1.4",
-    "pug": "2.0.4",
+    "pug": "3.0.1",
     "request": "^2.88.0",
     "torrent-to-magnet": "^1.0.1"
   },
